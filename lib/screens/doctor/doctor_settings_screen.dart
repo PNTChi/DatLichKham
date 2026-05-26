@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../auth/login_screen.dart';
 
 class DoctorSettingsScreen extends StatelessWidget {
   const DoctorSettingsScreen({super.key});
@@ -78,8 +80,14 @@ class DoctorSettingsScreen extends StatelessWidget {
 
           const SizedBox(height: 40),
           ElevatedButton.icon(
-            onPressed: () {
-              // Xử lý Đăng xuất
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              if (!context.mounted) return;
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    (route) => false,
+              );
             },
             icon: const Icon(Icons.logout, color: Colors.redAccent),
             label: const Text(

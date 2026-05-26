@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../services/database_service.dart';
+
 import 'settings_screen.dart';
 import 'search_doctor_screen.dart';
 import 'doctor_list_screen.dart';
@@ -374,8 +377,8 @@ class PatientHomeScreen extends StatelessWidget {
 
               const SizedBox(height: 25),
 
-              // BÁC SĨ VỪA XEM
-              _buildSectionTitle('Bác sĩ vừa xem'),
+              // BÁC SĨ NỔI BẬT (Đã kết nối Firebase)
+              _buildSectionTitle('Bác sĩ nổi bật'),
               const SizedBox(height: 15),
               _buildRecentlyVisitedList(),
 
@@ -388,7 +391,7 @@ class PatientHomeScreen extends StatelessWidget {
 
               const SizedBox(height: 25),
 
-              // BANNER KHÁM TỔNG QUÁT (Đã xóa phần Tiện ích thông minh ở trên)
+              // BANNER KHÁM TỔNG QUÁT
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: _buildLabTestBanner(),
@@ -554,12 +557,12 @@ class PatientHomeScreen extends StatelessWidget {
   }
 
   Widget _buildGridItem(
-    BuildContext context,
-    String imagePath,
-    String title,
-    String subtitle, {
-    VoidCallback? onTap,
-  }) {
+      BuildContext context,
+      String imagePath,
+      String title,
+      String subtitle, {
+        VoidCallback? onTap,
+      }) {
     final card = Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
@@ -605,69 +608,99 @@ class PatientHomeScreen extends StatelessWidget {
     return card;
   }
 
+  // ================= ĐÃ CẬP NHẬT KẾT NỐI FIREBASE =================
   Widget _buildRecentlyVisitedList() {
     return SizedBox(
       height: 140,
-      child: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        scrollDirection: Axis.horizontal,
-        itemCount: 2,
-        separatorBuilder: (context, index) => const SizedBox(width: 15),
-        itemBuilder: (context, index) {
-          String name = index == 0 ? 'BS. Quang Vinh' : 'BS. Ngọc Mai';
-          String specialty = index == 0 ? 'Đa khoa' : 'Tim mạch';
-          final rating = index == 0 ? '4.9' : '4.8';
-          final exp = index == 0 ? '15 năm KN' : '12 năm KN';
-          return Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(15),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DoctorDetailScreen(
-                      name: name,
-                      specialty: specialty,
-                      rating: rating,
-                      experience: exp,
+      child: StreamBuilder<QuerySnapshot>(
+        stream: DatabaseService().getDoctors(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(
+              child: Text('Chưa có bác sĩ nào', style: TextStyle(color: Colors.grey)),
+            );
+          }
+
+          final doctors = snapshot.data!.docs;
+
+          return ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            scrollDirection: Axis.horizontal,
+            itemCount: doctors.length,
+            separatorBuilder: (context, index) => const SizedBox(width: 15),
+            itemBuilder: (context, index) {
+              var docData = doctors[index].data() as Map<String, dynamic>;
+
+              // Cào dữ liệu động
+              String docId = doctors[index].id;
+              String name = docData['fullName'] ?? 'Bác sĩ';
+              String specialty = docData['specialty'] ?? 'Đa khoa';
+              String rating = docData['rating'] ?? '5.0';
+              String exp = docData['experience'] ?? '10 năm KN';
+
+              return Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(15),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => DoctorDetailScreen(
+                              doctorId: docId,
+                              name: name,
+                              specialty: specialty,
+                              rating: rating,
+                              experience: exp,
+                            )
+                        )
+                    );
+                  },
+                  child: Container(
+                    width: 130,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(color: Colors.grey[100]!),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundColor: Colors.grey[200],
+                          child: const Icon(
+                            Icons.person,
+                            size: 40,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Text(
+                            name,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          specialty,
+                          style: TextStyle(color: Colors.blue[600], fontSize: 11),
+                        ),
+                      ],
                     ),
                   ),
-                );
-              },
-              child: Container(
-                width: 130,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15),
-                  border: Border.all(color: Colors.grey[100]!),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundColor: Colors.grey[200],
-                      child: const Icon(
-                        Icons.person,
-                        size: 40,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      name,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      specialty,
-                      style: TextStyle(color: Colors.blue[600], fontSize: 11),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+              );
+            },
           );
         },
       ),

@@ -17,14 +17,14 @@ class DoctorHomeScreen extends StatefulWidget {
 class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
   final List<Map<String, String>> _upcomingAppointments = [
     {'title': 'Khám Tổng quát - Nguyễn Văn A', 'time': '08:30 - 09:00', 'subtitle': 'Phòng khám ABC, HCM'},
-    {'title': 'Tư vấn Online - Lê Thị B', 'time': '09:15 - 09:45', 'subtitle': 'Video Call'},
+    {'title': 'Tư vấn Online - Lê Thị B', 'time': '09:15 - 09:45', 'subtitle': 'Nhắn tin'},
     {'title': 'Đọc kết quả X-Quang - Trần C', 'time': '10:00 - 10:30', 'subtitle': 'Phòng chẩn đoán'},
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Đồng bộ màu nền trắng với Patient
+      backgroundColor: Colors.white,
       drawer: _buildDrawer(context),
       appBar: _buildAppBar(),
       body: _buildBody(),
@@ -74,7 +74,6 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
                 const SizedBox(height: 5),
                 const Text('BS. Trần Hoàng Nam', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87)),
                 const SizedBox(height: 20),
-                // Thanh tìm kiếm đồng bộ
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
@@ -93,9 +92,7 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
               ],
             ),
           ),
-
           const SizedBox(height: 25),
-
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Column(
@@ -107,10 +104,7 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
               ],
             ),
           ),
-
           const SizedBox(height: 25),
-
-          // Grid Menu giống Patient
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Column(
@@ -128,16 +122,14 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
                   children: [
                     _buildGridAction(context, Icons.calendar_month, 'Lịch khám', 'Quản lý lịch hẹn', const DoctorAppointmentScreen()),
                     _buildGridAction(context, Icons.assignment_ind, 'Bệnh án', 'Hồ sơ y tế', const DoctorEmrScreen()),
-                    _buildGridAction(context, Icons.videocam, 'Tư vấn', 'Trực tuyến', const DoctorConsultScreen()),
+                    _buildGridAction(context, Icons.chat_bubble_outline, 'Tư vấn', 'Trực tuyến', const DoctorConsultScreen()), // <-- Đã đổi icon
                     _buildGridAction(context, Icons.medication, 'Kê đơn', 'Đơn thuốc điện tử', const DoctorPrescriptionScreen()),
                   ],
                 ),
               ],
             ),
           ),
-
           const SizedBox(height: 25),
-
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Column(
@@ -145,9 +137,9 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
               children: [
                 const Text('Bệnh nhân chờ khám', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
                 const SizedBox(height: 12),
-                _buildPatientItem('Nguyễn Văn A', 'Nam, 45T', '08:30', 'Tái khám dạ dày', Colors.redAccent),
-                _buildPatientItem('Trần Thị B', 'Nữ, 32T', '09:15', 'Tư vấn đau đầu', Colors.orange),
-                _buildPatientItem('Lê Văn C', 'Nam, 28T', '10:00', 'Khám tổng quát', Colors.green),
+                _buildPatientItem(context, 'Nguyễn Văn A', 'Nam, 45T', '08:30', 'Tái khám dạ dày', Colors.redAccent),
+                _buildPatientItem(context, 'Trần Thị B', 'Nữ, 32T', '09:15', 'Tư vấn đau đầu', Colors.orange),
+                _buildPatientItem(context, 'Lê Văn C', 'Nam, 28T', '10:00', 'Khám tổng quát', Colors.green),
                 const SizedBox(height: 20),
               ],
             ),
@@ -188,7 +180,7 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
     );
   }
 
-  Widget _buildPatientItem(String name, String info, String time, String reason, Color statusColor) {
+  Widget _buildPatientItem(BuildContext context, String name, String info, String time, String reason, Color statusColor) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(15),
@@ -223,10 +215,7 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const DoctorEmrScreen()),
-              );
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const DoctorEmrScreen()));
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.navy,

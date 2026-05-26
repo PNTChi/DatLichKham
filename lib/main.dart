@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
-import 'screens/patient/patient_home_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'firebase_options.dart';
 import 'screens/auth/login_screen.dart';
+import 'screens/patient/patient_home_screen.dart';
+import 'screens/doctor/doctor_home_screen.dart';
+import 'theme/app_colors.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const DatLichKhamApp());
 }
 
@@ -12,41 +22,59 @@ class DatLichKhamApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'App Đặt Lịch Khám',
+      title: 'Medicare',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primaryColor: Colors.blue),
-
+      theme: ThemeData(
+        primaryColor: AppColors.navy,
+        scaffoldBackgroundColor: Colors.white,
+      ),
       home: const AuthGate(),
     );
   }
 }
 
-// AuthGate: "Người gác cổng" làm nhiệm vụ phân quyền giao diện
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
 
-  // GIẢ LẬP TRẠNG THÁI CHƯA ĐĂNG NHẬP
-  final String? currentRole = null;
-
   @override
   Widget build(BuildContext context) {
-    if (currentRole == null) {
-      return const LoginScreen();
-    } else if (currentRole == 'doctor') {
-      // TRƯỜNG HỢP 2: Là Bác sĩ (Hiện tạm Text)
-      return const Scaffold(
-        backgroundColor: Colors.teal,
-        body: Center(
-          child: Text(
-            'TRANG CHỦ BÁC SĨ\n(File: screens/doctor/doctor_home_screen.dart)',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 18, color: Colors.white),
-          ),
-        ),
-      );
-    } else {
-      // TRƯỜNG HỢP 3: Là Bệnh nhân
-      return const PatientHomeScreen();
-    }
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator(color: AppColors.navy)),
+          );
+        }
+
+        // Nếu chưa đăng nhập, trả về màn hình Đăng nhập
+        if (!snapshot.hasData) {
+          return const LoginScreen();
+        }
+
+        // Nếu đã đăng nhập, tự động dò quyền (Role) trong Firestore
+        return FutureBuilder<DocumentSnapshot>(
+          future: FirebaseFirestore.instance
+              .collection('users')
+              .doc(snapshot.data!.uid)
+              .get(),
+          builder: (context, roleSnapshot) {
+            if (roleSnapshot.connectionState == ConnectionState.waiting) {
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator(color: AppColors.navy)),
+              );
+            }
+
+            if (roleSnapshot.hasData && roleSnapshot.data!.exists) {
+              String role = roleSnapshot.data!['role'] ?? 'patient';
+              if (role == 'doctor') {
+                return const DoctorHomeScreen();
+              }
+            }
+            return const PatientHomeScreen();
+          },
+        );
+      },
+    );
   }
 }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "162088505695",
+    "project_id": "dat-lich-kham-app",
+    "storage_bucket": "dat-lich-kham-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:162088505695:android:6c0b00b90f7abc7602e6ea",
+        "android_client_info": {
+          "package_name": "com.example.dat_lich_kham_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxlyWX8hiHySYIH7F00uCrptsunnlyAKM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

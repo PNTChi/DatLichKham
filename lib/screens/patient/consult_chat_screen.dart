@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dat_lich_kham_app/theme/app_colors.dart';
 
-/// Khung chat tư vấn.
 class ConsultChatScreen extends StatefulWidget {
   const ConsultChatScreen({
     super.key,
@@ -44,7 +43,7 @@ class _ConsultChatScreenState extends State<ConsultChatScreen> {
         _messages.add(
           _Msg(
             false,
-            'Cảm ơn bạn đã chia sẻ. BS sẽ xem và phản hồi chi tiết trong vài phút.',
+            'Cảm ơn bạn đã chia sẻ. Hệ thống sẽ tiếp nhận và phản hồi chi tiết trong vài phút.',
           ),
         );
       });
@@ -75,30 +74,10 @@ class _ConsultChatScreenState extends State<ConsultChatScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              widget.doctorName,
-              style: const TextStyle(
-                color: Colors.black87,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            Text(
-              widget.specialty,
-              style: const TextStyle(
-                color: AppColors.accent,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            Text(widget.doctorName, style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 16)),
+            Text(widget.specialty, style: const TextStyle(color: AppColors.accent, fontSize: 12, fontWeight: FontWeight.w600)),
           ],
         ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.videocam_outlined, color: Colors.black87),
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -122,7 +101,7 @@ class _ConsultChatScreenState extends State<ConsultChatScreen> {
                 children: [
                   IconButton(
                     onPressed: () {},
-                    icon: const Icon(Icons.attach_file, color: Colors.black54),
+                    icon: const Icon(Icons.dynamic_feed, color: Colors.black54),
                   ),
                   Expanded(
                     child: TextField(
@@ -130,17 +109,11 @@ class _ConsultChatScreenState extends State<ConsultChatScreen> {
                       minLines: 1,
                       maxLines: 4,
                       decoration: InputDecoration(
-                        hintText: 'Nhập tin nhắn...',
+                        hintText: 'Nhập tin nhắn tư vấn...',
                         filled: true,
                         fillColor: Colors.grey[100],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 18,
-                          vertical: 10,
-                        ),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                       ),
                       onSubmitted: (_) => _send(),
                     ),
@@ -168,13 +141,11 @@ class _ConsultChatScreenState extends State<ConsultChatScreen> {
 class _Msg {
   final bool fromUser;
   final String text;
-
   _Msg(this.fromUser, this.text);
 }
 
 class _Bubble extends StatelessWidget {
   const _Bubble({required this.msg});
-
   final _Msg msg;
 
   @override
@@ -185,9 +156,7 @@ class _Bubble extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.sizeOf(context).width * 0.78,
-        ),
+        constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.78),
         decoration: BoxDecoration(
           color: user ? AppColors.navy : Colors.white,
           borderRadius: BorderRadius.only(
@@ -196,22 +165,8 @@ class _Bubble extends StatelessWidget {
             bottomLeft: Radius.circular(user ? 16 : 4),
             bottomRight: Radius.circular(user ? 4 : 16),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
         ),
-        child: Text(
-          msg.text,
-          style: TextStyle(
-            color: user ? Colors.white : Colors.black87,
-            fontSize: 15,
-            height: 1.4,
-          ),
-        ),
+        child: Text(msg.text, style: TextStyle(color: user ? Colors.white : Colors.black87, fontSize: 15, height: 1.4)),
       ),
     );
   }
