@@ -89,10 +89,7 @@ class BookingSuccessScreen extends StatelessWidget {
                   ),
                   child: const Text(
                     'Xem lịch của tôi',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),

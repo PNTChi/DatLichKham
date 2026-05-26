@@ -27,8 +27,10 @@ class DoctorDetailScreen extends StatelessWidget {
             pinned: true,
             backgroundColor: AppColors.navy,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                  color: Colors.white),
+              icon: const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: Colors.white,
+              ),
               onPressed: () => Navigator.pop(context),
             ),
             flexibleSpace: FlexibleSpaceBar(
@@ -47,8 +49,11 @@ class DoctorDetailScreen extends StatelessWidget {
                       CircleAvatar(
                         radius: 48,
                         backgroundColor: Colors.white.withValues(alpha: 0.2),
-                        child: const Icon(Icons.person,
-                            size: 56, color: Colors.white),
+                        child: const Icon(
+                          Icons.person,
+                          size: 56,
+                          color: Colors.white,
+                        ),
                       ),
                       const SizedBox(height: 12),
                       Text(
@@ -129,7 +134,9 @@ class DoctorDetailScreen extends StatelessWidget {
                       child: Container(
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(
-                            vertical: 12, horizontal: 14),
+                          vertical: 12,
+                          horizontal: 14,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.surfaceMuted,
                           borderRadius: BorderRadius.circular(12),
@@ -201,10 +208,7 @@ class DoctorDetailScreen extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
           ),
         ],
       ),

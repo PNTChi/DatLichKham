@@ -21,10 +21,7 @@ class _ConsultChatScreenState extends State<ConsultChatScreen> {
   final _scroll = ScrollController();
 
   final List<_Msg> _messages = [
-    _Msg(
-      false,
-      'Xin chào, tôi có thể hỗ trợ gì cho bạn hôm nay?',
-    ),
+    _Msg(false, 'Xin chào, tôi có thể hỗ trợ gì cho bạn hôm nay?'),
   ];
 
   @override
@@ -155,8 +152,7 @@ class _ConsultChatScreenState extends State<ConsultChatScreen> {
                     clipBehavior: Clip.antiAlias,
                     child: IconButton(
                       onPressed: _send,
-                      icon:
-                          const Icon(Icons.send_rounded, color: Colors.white),
+                      icon: const Icon(Icons.send_rounded, color: Colors.white),
                     ),
                   ),
                 ],

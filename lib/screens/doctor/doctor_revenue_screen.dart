@@ -12,12 +12,20 @@ class DoctorRevenueScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.navy, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: AppColors.navy,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           'Doanh thu & Thống kê',
-          style: TextStyle(color: AppColors.navy, fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: AppColors.navy,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
       ),
@@ -31,15 +39,33 @@ class DoctorRevenueScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(25),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [AppColors.navy, Color(0xFF2A368F)]),
+                gradient: const LinearGradient(
+                  colors: [AppColors.navy, Color(0xFF2A368F)],
+                ),
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: [BoxShadow(color: AppColors.navy.withValues(alpha:0.3), blurRadius: 15, offset: const Offset(0, 8))],
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.navy.withValues(alpha: 0.3),
+                    blurRadius: 15,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
               child: Column(
                 children: [
-                  const Text('Tổng doanh thu tháng này', style: TextStyle(color: Colors.white70, fontSize: 14)),
+                  const Text(
+                    'Tổng doanh thu tháng này',
+                    style: TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
                   const SizedBox(height: 10),
-                  const Text('24.500.000đ', style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
+                  const Text(
+                    '24.500.000đ',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -48,19 +74,35 @@ class DoctorRevenueScreen extends StatelessWidget {
                       Container(width: 1, height: 30, color: Colors.white24),
                       _buildMiniStat('Tư vấn Online', '6.5tr'),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 30),
 
             // Biểu đồ minh họa
-            const Text('Biểu đồ theo tuần', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
+            const Text(
+              'Biểu đồ theo tuần',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.navy,
+              ),
+            ),
             const SizedBox(height: 15),
             Container(
               height: 200,
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha:0.03), blurRadius: 10)]),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.03),
+                    blurRadius: 10,
+                  ),
+                ],
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -76,11 +118,30 @@ class DoctorRevenueScreen extends StatelessWidget {
             const SizedBox(height: 30),
 
             // Lịch sử giao dịch
-            const Text('Giao dịch gần đây', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
+            const Text(
+              'Giao dịch gần đây',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.navy,
+              ),
+            ),
             const SizedBox(height: 15),
-            _buildTransactionItem('Khám tổng quát - Nguyễn Văn A', 'Hôm nay, 10:30', '+250.000đ'),
-            _buildTransactionItem('Tư vấn Online - Lê Thị B', 'Hôm qua, 09:15', '+150.000đ'),
-            _buildTransactionItem('Đọc X-Quang - Trần C', '12/04/2026', '+200.000đ'),
+            _buildTransactionItem(
+              'Khám tổng quát - Nguyễn Văn A',
+              'Hôm nay, 10:30',
+              '+250.000đ',
+            ),
+            _buildTransactionItem(
+              'Tư vấn Online - Lê Thị B',
+              'Hôm qua, 09:15',
+              '+150.000đ',
+            ),
+            _buildTransactionItem(
+              'Đọc X-Quang - Trần C',
+              '12/04/2026',
+              '+200.000đ',
+            ),
           ],
         ),
       ),
@@ -90,9 +151,19 @@ class DoctorRevenueScreen extends StatelessWidget {
   Widget _buildMiniStat(String label, String value) {
     return Column(
       children: [
-        Text(value, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+        Text(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         const SizedBox(height: 4),
-        Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+        Text(
+          label,
+          style: const TextStyle(color: Colors.white70, fontSize: 12),
+        ),
       ],
     );
   }
@@ -102,11 +173,22 @@ class DoctorRevenueScreen extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Container(
-          width: 40, height: height,
-          decoration: BoxDecoration(color: isHighlight ? AppColors.accent : AppColors.surfaceMuted, borderRadius: BorderRadius.circular(8)),
+          width: 40,
+          height: height,
+          decoration: BoxDecoration(
+            color: isHighlight ? AppColors.accent : AppColors.surfaceMuted,
+            borderRadius: BorderRadius.circular(8),
+          ),
         ),
         const SizedBox(height: 10),
-        Text(label, style: TextStyle(color: isHighlight ? AppColors.navy : Colors.grey, fontWeight: isHighlight ? FontWeight.bold : FontWeight.normal, fontSize: 12)),
+        Text(
+          label,
+          style: TextStyle(
+            color: isHighlight ? AppColors.navy : Colors.grey,
+            fontWeight: isHighlight ? FontWeight.bold : FontWeight.normal,
+            fontSize: 12,
+          ),
+        ),
       ],
     );
   }
@@ -115,26 +197,55 @@ class DoctorRevenueScreen extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.withValues(alpha:0.1))),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+      ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: Colors.green.withValues(alpha:0.1), shape: BoxShape.circle),
-            child: const Icon(Icons.account_balance_wallet, color: Colors.green, size: 20),
+            decoration: BoxDecoration(
+              color: Colors.green.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.account_balance_wallet,
+              color: Colors.green,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 15),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy), maxLines: 1, overflow: TextOverflow.ellipsis),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.navy,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 const SizedBox(height: 4),
-                Text(time, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                Text(
+                  time,
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+                ),
               ],
             ),
           ),
-          Text(amount, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green, fontSize: 15)),
+          Text(
+            amount,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.green,
+              fontSize: 15,
+            ),
+          ),
         ],
       ),
     );

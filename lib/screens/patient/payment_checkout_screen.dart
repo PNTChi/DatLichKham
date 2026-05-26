@@ -140,8 +140,10 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
                       amountVnd: widget.amountVnd,
                       itemName: widget.itemName,
                       quantity: widget.quantity,
-                      headline: widget.successHeadline ?? 'Đặt hàng thành công!',
-                      footerHint: widget.successFooterHint ??
+                      headline:
+                          widget.successHeadline ?? 'Đặt hàng thành công!',
+                      footerHint:
+                          widget.successFooterHint ??
                           'Đơn hàng đang được xử lý. Bạn sẽ nhận thông báo khi giao hàng.',
                     ),
                   ),

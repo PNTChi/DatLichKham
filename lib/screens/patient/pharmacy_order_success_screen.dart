@@ -93,10 +93,7 @@ class PharmacyOrderSuccessScreen extends StatelessWidget {
                   ),
                   child: const Text(
                     'Tiếp tục mua',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -124,10 +121,7 @@ class PharmacyOrderSuccessScreen extends StatelessWidget {
                   ),
                   child: const Text(
                     'Về trang chủ',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),

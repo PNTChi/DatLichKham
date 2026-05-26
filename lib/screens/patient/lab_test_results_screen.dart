@@ -100,14 +100,14 @@ class LabTestResultsScreen extends StatelessWidget {
 
   // Widget xây dựng Thẻ thông tin kết quả xét nghiệm
   Widget _buildTestResultCard(
-      BuildContext context, {
-        required String testName,
-        required String date,
-        required String hospital,
-        required String status,
-        bool isNormal = true,
-        bool isPending = false,
-      }) {
+    BuildContext context, {
+    required String testName,
+    required String date,
+    required String hospital,
+    required String status,
+    bool isNormal = true,
+    bool isPending = false,
+  }) {
     Color statusColor;
     Color statusBgColor;
     IconData statusIcon;
@@ -172,10 +172,7 @@ class LabTestResultsScreen extends StatelessWidget {
                       const SizedBox(height: 5),
                       Text(
                         hospital,
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 13,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 13),
                       ),
                     ],
                   ),
@@ -191,7 +188,11 @@ class LabTestResultsScreen extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.calendar_today, size: 14, color: Colors.grey[500]),
+                    Icon(
+                      Icons.calendar_today,
+                      size: 14,
+                      color: Colors.grey[500],
+                    ),
                     const SizedBox(width: 5),
                     Text(
                       date,
@@ -200,7 +201,10 @@ class LabTestResultsScreen extends StatelessWidget {
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
                   decoration: BoxDecoration(
                     color: statusBgColor,
                     borderRadius: BorderRadius.circular(20),

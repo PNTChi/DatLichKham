@@ -9,7 +9,14 @@ class MyAppointmentsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final items = [
       _Appt('BS. Quang Vinh', 'Đa khoa', 'Sắp tới', 'T5 28/03', '09:30', true),
-      _Appt('BS. Ngọc Mai', 'Tim mạch', 'Đã xác nhận', 'T6 29/03', '14:00', true),
+      _Appt(
+        'BS. Ngọc Mai',
+        'Tim mạch',
+        'Đã xác nhận',
+        'T6 29/03',
+        '14:00',
+        true,
+      ),
       _Appt('BS. Minh Tuấn', 'Nhi khoa', 'Đã khám', 'T2 24/03', '10:00', false),
     ];
 
@@ -69,7 +76,9 @@ class MyAppointmentsScreen extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: a.upcoming
                               ? AppColors.surfaceMuted
@@ -88,8 +97,11 @@ class MyAppointmentsScreen extends StatelessWidget {
                         ),
                       ),
                       const Spacer(),
-                      Icon(Icons.calendar_today_outlined,
-                          size: 18, color: Colors.grey[600]),
+                      Icon(
+                        Icons.calendar_today_outlined,
+                        size: 18,
+                        color: Colors.grey[600],
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         '${a.day} • ${a.time}',
@@ -127,8 +139,7 @@ class MyAppointmentsScreen extends StatelessWidget {
                             onPressed: () {},
                             style: OutlinedButton.styleFrom(
                               foregroundColor: Colors.redAccent,
-                              side: const BorderSide(
-                                  color: Colors.redAccent),
+                              side: const BorderSide(color: Colors.redAccent),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),

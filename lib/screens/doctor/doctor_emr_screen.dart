@@ -14,19 +14,31 @@ class DoctorEmrScreen extends StatelessWidget {
           backgroundColor: Colors.white,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios, color: AppColors.navy, size: 20),
+            icon: const Icon(
+              Icons.arrow_back_ios,
+              color: AppColors.navy,
+              size: 20,
+            ),
             onPressed: () => Navigator.pop(context),
           ),
           title: const Text(
             'Hồ sơ Bệnh án',
-            style: TextStyle(color: AppColors.navy, fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: AppColors.navy,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           centerTitle: true,
           actions: [
             IconButton(
-              icon: const Icon(Icons.edit_note, color: AppColors.accent, size: 28),
+              icon: const Icon(
+                Icons.edit_note,
+                color: AppColors.accent,
+                size: 28,
+              ),
               onPressed: () {}, // Nút để bác sĩ cập nhật bệnh án
-            )
+            ),
           ],
           bottom: const TabBar(
             labelColor: AppColors.navy,
@@ -48,7 +60,7 @@ class DoctorEmrScreen extends StatelessWidget {
               child: TabBarView(
                 children: [
                   _buildOverviewTab(), // Tab 1
-                  _buildHistoryTab(),  // Tab 2
+                  _buildHistoryTab(), // Tab 2
                   _buildLabResultsTab(), // Tab 3
                 ],
               ),
@@ -65,7 +77,13 @@ class DoctorEmrScreen extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha:0.02), blurRadius: 5, offset: const Offset(0, 3))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -81,7 +99,11 @@ class DoctorEmrScreen extends StatelessWidget {
               children: [
                 const Text(
                   'Nguyễn Văn A',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.navy),
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.navy,
+                  ),
                 ),
                 const SizedBox(height: 5),
                 Text(
@@ -90,11 +112,21 @@ class DoctorEmrScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 5),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(color: Colors.red.withValues(alpha:0.1), borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   child: const Text(
                     'Dị ứng: Penicillin, Hải sản',
-                    style: TextStyle(color: Colors.redAccent, fontSize: 12, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: Colors.redAccent,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -110,40 +142,95 @@ class DoctorEmrScreen extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        const Text('Chỉ số sinh tồn gần nhất', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy, fontSize: 16)),
+        const Text(
+          'Chỉ số sinh tồn gần nhất',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppColors.navy,
+            fontSize: 16,
+          ),
+        ),
         const SizedBox(height: 15),
         Row(
           children: [
-            _buildVitalCard('Nhịp tim', '85', 'bpm', Icons.favorite, Colors.redAccent),
+            _buildVitalCard(
+              'Nhịp tim',
+              '85',
+              'bpm',
+              Icons.favorite,
+              Colors.redAccent,
+            ),
             const SizedBox(width: 15),
-            _buildVitalCard('Huyết áp', '120/80', 'mmHg', Icons.bloodtype, Colors.blue),
+            _buildVitalCard(
+              'Huyết áp',
+              '120/80',
+              'mmHg',
+              Icons.bloodtype,
+              Colors.blue,
+            ),
           ],
         ),
         const SizedBox(height: 15),
         Row(
           children: [
-            _buildVitalCard('Chiều cao', '170', 'cm', Icons.height, Colors.green),
+            _buildVitalCard(
+              'Chiều cao',
+              '170',
+              'cm',
+              Icons.height,
+              Colors.green,
+            ),
             const SizedBox(width: 15),
-            _buildVitalCard('Cân nặng', '68', 'kg', Icons.monitor_weight, Colors.orange),
+            _buildVitalCard(
+              'Cân nặng',
+              '68',
+              'kg',
+              Icons.monitor_weight,
+              Colors.orange,
+            ),
           ],
         ),
         const SizedBox(height: 25),
-        const Text('Bệnh lý nền', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy, fontSize: 16)),
+        const Text(
+          'Bệnh lý nền',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppColors.navy,
+            fontSize: 16,
+          ),
+        ),
         const SizedBox(height: 10),
         Container(
           padding: const EdgeInsets.all(15),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.withValues(alpha:0.2))),
-          child: const Text('• Viêm dạ dày mãn tính\n• Rối loạn tiền đình', style: TextStyle(height: 1.5, fontSize: 14)),
-        )
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+          ),
+          child: const Text(
+            '• Viêm dạ dày mãn tính\n• Rối loạn tiền đình',
+            style: TextStyle(height: 1.5, fontSize: 14),
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildVitalCard(String title, String value, String unit, IconData icon, Color iconColor) {
+  Widget _buildVitalCard(
+    String title,
+    String value,
+    String unit,
+    IconData icon,
+    Color iconColor,
+  ) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(15),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.withValues(alpha:0.1))),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -151,7 +238,10 @@ class DoctorEmrScreen extends StatelessWidget {
               children: [
                 Icon(icon, color: iconColor, size: 20),
                 const SizedBox(width: 8),
-                Text(title, style: const TextStyle(color: Colors.grey, fontSize: 13)),
+                Text(
+                  title,
+                  style: const TextStyle(color: Colors.grey, fontSize: 13),
+                ),
               ],
             ),
             const SizedBox(height: 10),
@@ -159,9 +249,19 @@ class DoctorEmrScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,
               children: [
-                Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.navy,
+                  ),
+                ),
                 const SizedBox(width: 4),
-                Text(unit, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                Text(
+                  unit,
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
               ],
             ),
           ],
@@ -175,31 +275,69 @@ class DoctorEmrScreen extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        _buildHistoryItem('10/05/2026', 'Tái khám dạ dày', 'BS. Quang Vinh', 'Tình trạng ổn định. Tiếp tục đơn thuốc cũ.'),
-        _buildHistoryItem('15/02/2026', 'Khám nội khoa', 'BS. Trần Hoàng Nam', 'Đau thượng vị, buồn nôn. Chỉ định nội soi.'),
+        _buildHistoryItem(
+          '10/05/2026',
+          'Tái khám dạ dày',
+          'BS. Quang Vinh',
+          'Tình trạng ổn định. Tiếp tục đơn thuốc cũ.',
+        ),
+        _buildHistoryItem(
+          '15/02/2026',
+          'Khám nội khoa',
+          'BS. Trần Hoàng Nam',
+          'Đau thượng vị, buồn nôn. Chỉ định nội soi.',
+        ),
       ],
     );
   }
 
-  Widget _buildHistoryItem(String date, String title, String doctor, String note) {
+  Widget _buildHistoryItem(
+    String date,
+    String title,
+    String doctor,
+    String note,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.withValues(alpha:0.1))),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(date, style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold)),
-              Text(doctor, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+              Text(
+                date,
+                style: const TextStyle(
+                  color: AppColors.accent,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                doctor,
+                style: const TextStyle(color: Colors.grey, fontSize: 12),
+              ),
             ],
           ),
           const Divider(height: 20),
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.navy)),
+          Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: AppColors.navy,
+            ),
+          ),
           const SizedBox(height: 8),
-          Text('Kết luận: $note', style: TextStyle(color: Colors.grey[800], height: 1.4)),
+          Text(
+            'Kết luận: $note',
+            style: TextStyle(color: Colors.grey[800], height: 1.4),
+          ),
         ],
       ),
     );
@@ -221,12 +359,19 @@ class DoctorEmrScreen extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.withValues(alpha:0.1))),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+      ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: AppColors.surfaceMuted, borderRadius: BorderRadius.circular(8)),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceMuted,
+              borderRadius: BorderRadius.circular(8),
+            ),
             child: const Icon(Icons.science, color: AppColors.navy),
           ),
           const SizedBox(width: 15),
@@ -234,9 +379,19 @@ class DoctorEmrScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.navy)),
+                Text(
+                  name,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: AppColors.navy,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(date, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                Text(
+                  date,
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+                ),
               ],
             ),
           ),

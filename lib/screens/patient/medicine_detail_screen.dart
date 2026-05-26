@@ -60,8 +60,11 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                         color: AppColors.surfaceMuted,
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Icon(Icons.medication,
-                          size: 80, color: AppColors.navy.withValues(alpha: 0.85)),
+                      child: Icon(
+                        Icons.medication,
+                        size: 80,
+                        color: AppColors.navy.withValues(alpha: 0.85),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),

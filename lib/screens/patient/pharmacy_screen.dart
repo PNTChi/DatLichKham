@@ -55,7 +55,10 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
         actions: [
           IconButton(
             onPressed: () {},
-            icon: const Icon(Icons.shopping_bag_outlined, color: Colors.black87),
+            icon: const Icon(
+              Icons.shopping_bag_outlined,
+              color: Colors.black87,
+            ),
           ),
         ],
       ),
@@ -184,8 +187,11 @@ class _MedCard extends StatelessWidget {
                   color: AppColors.surfaceMuted,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(Icons.medication_liquid,
-                    color: AppColors.navy, size: 32),
+                child: Icon(
+                  Icons.medication_liquid,
+                  color: AppColors.navy,
+                  size: 32,
+                ),
               ),
               const SizedBox(width: 14),
               Expanded(

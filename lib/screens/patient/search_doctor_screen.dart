@@ -69,9 +69,15 @@ class SearchDoctorScreen extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               mainAxisSpacing: 15,
               crossAxisSpacing: 15,
-              childAspectRatio: 0.9, // Điều chỉnh độ cao của ô vuông
+              childAspectRatio: 0.9,
+              // Điều chỉnh độ cao của ô vuông
               children: [
-                _buildSpecialityCard(context, Icons.favorite, 'Tim mạch', '340 Bác sĩ'),
+                _buildSpecialityCard(
+                  context,
+                  Icons.favorite,
+                  'Tim mạch',
+                  '340 Bác sĩ',
+                ),
                 _buildSpecialityCard(
                   context,
                   Icons.child_care,
@@ -102,7 +108,12 @@ class SearchDoctorScreen extends StatelessWidget {
                   'Tâm lý học',
                   '50 Bác sĩ',
                 ),
-                _buildSpecialityCard(context, Icons.healing, 'Tiêu hóa', '145 Bác sĩ'),
+                _buildSpecialityCard(
+                  context,
+                  Icons.healing,
+                  'Tiêu hóa',
+                  '145 Bác sĩ',
+                ),
                 _buildSpecialityCard(
                   context,
                   Icons.coronavirus,
@@ -193,11 +204,7 @@ class SearchDoctorScreen extends StatelessWidget {
               CircleAvatar(
                 radius: 30,
                 backgroundColor: const Color(0xFF1B2473),
-                child: Icon(
-                  icon,
-                  color: const Color(0xFF00C2FF),
-                  size: 30,
-                ),
+                child: Icon(icon, color: const Color(0xFF00C2FF), size: 30),
               ),
               const SizedBox(height: 12),
               Text(
@@ -211,8 +218,7 @@ class SearchDoctorScreen extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 subtitle,
-                style:
-                    const TextStyle(color: Color(0xFF00C2FF), fontSize: 11),
+                style: const TextStyle(color: Color(0xFF00C2FF), fontSize: 11),
               ),
             ],
           ),

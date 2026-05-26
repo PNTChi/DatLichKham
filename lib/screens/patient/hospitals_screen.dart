@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:dat_lich_kham_app/theme/app_colors.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'hospital_map_screen.dart';
 
 /// Danh sách bệnh viện / cơ sở y tế.
@@ -8,26 +7,10 @@ class HospitalsScreen extends StatelessWidget {
   const HospitalsScreen({super.key});
 
   static const _list = [
-    _Hosp(
-      'Bệnh viện Chợ Rẫy',
-      '201B Nguyễn Chí Thanh, Q.5, TP.HCM',
-      '2,1 km',
-    ),
-    _Hosp(
-      'Bệnh viện Nhi Đồng 1',
-      '341 Sư Vạn Hạnh, Q.10, TP.HCM',
-      '3,4 km',
-    ),
-    _Hosp(
-      'Bệnh viện Đại học Y Dược',
-      '215 Hồng Bàng, Q.5, TP.HCM',
-      '2,8 km',
-    ),
-    _Hosp(
-      'Vinmec Central Park',
-      '208 Nguyễn Hữu Cảnh, Q.Bình Thạnh',
-      '4,0 km',
-    ),
+    _Hosp('Bệnh viện Chợ Rẫy', '201B Nguyễn Chí Thanh, Q.5, TP.HCM', '2,1 km'),
+    _Hosp('Bệnh viện Nhi Đồng 1', '341 Sư Vạn Hạnh, Q.10, TP.HCM', '3,4 km'),
+    _Hosp('Bệnh viện Đại học Y Dược', '215 Hồng Bàng, Q.5, TP.HCM', '2,8 km'),
+    _Hosp('Vinmec Central Park', '208 Nguyễn Hữu Cảnh, Q.Bình Thạnh', '4,0 km'),
   ];
 
   @override
@@ -52,7 +35,12 @@ class HospitalsScreen extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const HospitalMapScreen()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HospitalMapScreen(),
+                ),
+              );
             },
             icon: const Icon(Icons.map_outlined, color: Colors.black87),
           ),
@@ -100,8 +88,11 @@ class HospitalsScreen extends StatelessWidget {
                               color: AppColors.surfaceMuted,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const Icon(Icons.local_hospital,
-                                color: AppColors.navy, size: 28),
+                            child: const Icon(
+                              Icons.local_hospital,
+                              color: AppColors.navy,
+                              size: 28,
+                            ),
                           ),
                           const SizedBox(width: 14),
                           Expanded(
@@ -128,8 +119,11 @@ class HospitalsScreen extends StatelessWidget {
                                 const SizedBox(height: 8),
                                 Row(
                                   children: [
-                                    Icon(Icons.near_me_outlined,
-                                        size: 16, color: Colors.grey[600]),
+                                    Icon(
+                                      Icons.near_me_outlined,
+                                      size: 16,
+                                      color: Colors.grey[600],
+                                    ),
                                     const SizedBox(width: 4),
                                     Text(
                                       h.distance,
@@ -142,8 +136,10 @@ class HospitalsScreen extends StatelessWidget {
                                     const Spacer(),
                                     TextButton.icon(
                                       onPressed: () {},
-                                      icon: const Icon(Icons.phone_outlined,
-                                          size: 18),
+                                      icon: const Icon(
+                                        Icons.phone_outlined,
+                                        size: 18,
+                                      ),
                                       label: const Text('Gọi'),
                                       style: TextButton.styleFrom(
                                         foregroundColor: AppColors.navy,

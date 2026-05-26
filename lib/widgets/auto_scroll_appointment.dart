@@ -7,7 +7,8 @@ class AutoScrollAppointmentCard extends StatefulWidget {
   const AutoScrollAppointmentCard({super.key, required this.appointments});
 
   @override
-  State<AutoScrollAppointmentCard> createState() => _AutoScrollAppointmentCardState();
+  State<AutoScrollAppointmentCard> createState() =>
+      _AutoScrollAppointmentCardState();
 }
 
 class _AutoScrollAppointmentCardState extends State<AutoScrollAppointmentCard> {
@@ -60,7 +61,7 @@ class _AutoScrollAppointmentCardState extends State<AutoScrollAppointmentCard> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -73,10 +74,14 @@ class _AutoScrollAppointmentCardState extends State<AutoScrollAppointmentCard> {
             width: 55,
             height: 55,
             decoration: BoxDecoration(
-              color: const Color(0xFF00C2FF).withValues(alpha:0.15),
+              color: const Color(0xFF00C2FF).withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.calendar_month_rounded, color: Color(0xFF1B2473), size: 28),
+            child: const Icon(
+              Icons.calendar_month_rounded,
+              color: Color(0xFF1B2473),
+              size: 28,
+            ),
           ),
           const SizedBox(width: 15),
 
@@ -90,7 +95,8 @@ class _AutoScrollAppointmentCardState extends State<AutoScrollAppointmentCard> {
                   _currentPage = index;
                 },
                 itemBuilder: (context, index) {
-                  final appointment = widget.appointments[index % widget.appointments.length];
+                  final appointment =
+                      widget.appointments[index % widget.appointments.length];
                   return _buildScrollableText(appointment);
                 },
               ),
@@ -115,9 +121,9 @@ class _AutoScrollAppointmentCardState extends State<AutoScrollAppointmentCard> {
         Text(
           appointment['title'] ?? '',
           style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF1B2473)
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF1B2473),
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,

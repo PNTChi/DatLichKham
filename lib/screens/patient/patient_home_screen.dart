@@ -8,7 +8,6 @@ import 'notifications_screen.dart';
 import 'pharmacy_screen.dart';
 import 'lab_tests_screen.dart';
 import 'hospitals_screen.dart';
-import 'insurance_screen.dart';
 import 'online_consult_screen.dart';
 import 'lab_test_results_screen.dart';
 import 'health_record_screen.dart';
@@ -482,9 +481,7 @@ class PatientHomeScreen extends StatelessWidget {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const DoctorListScreen(),
-              ),
+              MaterialPageRoute(builder: (context) => const DoctorListScreen()),
             );
           },
         ),
@@ -496,9 +493,7 @@ class PatientHomeScreen extends StatelessWidget {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const LabTestsScreen(),
-              ),
+              MaterialPageRoute(builder: (context) => const LabTestsScreen()),
             );
           },
         ),
@@ -510,9 +505,7 @@ class PatientHomeScreen extends StatelessWidget {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const HospitalsScreen(),
-              ),
+              MaterialPageRoute(builder: (context) => const HospitalsScreen()),
             );
           },
         ),
@@ -524,9 +517,7 @@ class PatientHomeScreen extends StatelessWidget {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const PharmacyScreen(),
-              ),
+              MaterialPageRoute(builder: (context) => const PharmacyScreen()),
             );
           },
         ),
@@ -536,7 +527,12 @@ class PatientHomeScreen extends StatelessWidget {
           'Nhắc thuốc',
           'Lịch uống thuốc',
           onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const MedicationReminderScreen()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const MedicationReminderScreen(),
+              ),
+            );
           },
         ),
         _buildGridItem(
@@ -558,12 +554,12 @@ class PatientHomeScreen extends StatelessWidget {
   }
 
   Widget _buildGridItem(
-      BuildContext context,
-      String imagePath,
-      String title,
-      String subtitle, {
-        VoidCallback? onTap,
-      }) {
+    BuildContext context,
+    String imagePath,
+    String title,
+    String subtitle, {
+    VoidCallback? onTap,
+  }) {
     final card = Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
@@ -577,12 +573,7 @@ class PatientHomeScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.asset(
-            imagePath,
-            width: 40,
-            height: 40,
-            fit: BoxFit.contain,
-          ),
+          Image.asset(imagePath, width: 40, height: 40, fit: BoxFit.contain),
           const Spacer(),
           Text(
             title,
@@ -657,12 +648,17 @@ class PatientHomeScreen extends StatelessWidget {
                     CircleAvatar(
                       radius: 30,
                       backgroundColor: Colors.grey[200],
-                      child:
-                      const Icon(Icons.person, size: 40, color: Colors.grey),
+                      child: const Icon(
+                        Icons.person,
+                        size: 40,
+                        color: Colors.grey,
+                      ),
                     ),
                     const SizedBox(height: 10),
-                    Text(name,
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text(
+                      name,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(height: 4),
                     Text(
                       specialty,

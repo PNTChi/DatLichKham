@@ -96,11 +96,7 @@ class _DoctorCard extends StatelessWidget {
               CircleAvatar(
                 radius: 32,
                 backgroundColor: AppColors.surfaceMuted,
-                child: Icon(
-                  Icons.person,
-                  size: 36,
-                  color: AppColors.navy,
-                ),
+                child: Icon(Icons.person, size: 36, color: AppColors.navy),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -127,8 +123,11 @@ class _DoctorCard extends StatelessWidget {
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        const Icon(Icons.star_rounded,
-                            color: Color(0xFFFFB020), size: 18),
+                        const Icon(
+                          Icons.star_rounded,
+                          color: Color(0xFFFFB020),
+                          size: 18,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           data.rating,
@@ -138,8 +137,11 @@ class _DoctorCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        Icon(Icons.work_outline,
-                            size: 16, color: Colors.grey[600]),
+                        Icon(
+                          Icons.work_outline,
+                          size: 16,
+                          color: Colors.grey[600],
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           data.experience,

@@ -12,12 +12,20 @@ class DoctorConsultScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.navy, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: AppColors.navy,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           'Tư vấn trực tuyến',
-          style: TextStyle(color: AppColors.navy, fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: AppColors.navy,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
       ),
@@ -30,7 +38,7 @@ class DoctorConsultScreen extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: Colors.grey.withValues(alpha:0.1),
+                color: Colors.grey.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: const TextField(
@@ -47,15 +55,42 @@ class DoctorConsultScreen extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                const Text('Đang chờ tư vấn (2)', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy)),
+                const Text(
+                  'Đang chờ tư vấn (2)',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.navy,
+                  ),
+                ),
                 const SizedBox(height: 12),
-                _buildChatItem('Lê Văn C', 'Chào bác sĩ, tôi bị đau đầu liên tục từ sáng...', '10:02', true),
-                _buildChatItem('Trần Thị B', 'Bác sĩ xem giúp tôi kết quả xét nghiệm này với ạ.', '09:45', true),
+                _buildChatItem(
+                  'Lê Văn C',
+                  'Chào bác sĩ, tôi bị đau đầu liên tục từ sáng...',
+                  '10:02',
+                  true,
+                ),
+                _buildChatItem(
+                  'Trần Thị B',
+                  'Bác sĩ xem giúp tôi kết quả xét nghiệm này với ạ.',
+                  '09:45',
+                  true,
+                ),
 
                 const SizedBox(height: 20),
-                const Text('Gần đây', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy)),
+                const Text(
+                  'Gần đây',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.navy,
+                  ),
+                ),
                 const SizedBox(height: 12),
-                _buildChatItem('Nguyễn Văn A', 'Cảm ơn bác sĩ nhiều ạ.', 'Hôm qua', false),
+                _buildChatItem(
+                  'Nguyễn Văn A',
+                  'Cảm ơn bác sĩ nhiều ạ.',
+                  'Hôm qua',
+                  false,
+                ),
               ],
             ),
           ),
@@ -64,14 +99,21 @@ class DoctorConsultScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildChatItem(String name, String lastMessage, String time, bool isUnread) {
+  Widget _buildChatItem(
+    String name,
+    String lastMessage,
+    String time,
+    bool isUnread,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha:0.02), blurRadius: 8)],
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 8),
+        ],
       ),
       child: Row(
         children: [
@@ -80,17 +122,26 @@ class DoctorConsultScreen extends StatelessWidget {
               CircleAvatar(
                 radius: 28,
                 backgroundColor: AppColors.surfaceMuted,
-                child: const Icon(Icons.person, color: AppColors.navy, size: 30),
+                child: const Icon(
+                  Icons.person,
+                  color: AppColors.navy,
+                  size: 30,
+                ),
               ),
               if (isUnread)
                 Positioned(
                   right: 0,
                   top: 0,
                   child: Container(
-                    width: 14, height: 14,
-                    decoration: BoxDecoration(color: Colors.red, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)),
+                    width: 14,
+                    height: 14,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
                   ),
-                )
+                ),
             ],
           ),
           const SizedBox(width: 15),
@@ -101,8 +152,26 @@ class DoctorConsultScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(name, style: TextStyle(fontWeight: isUnread ? FontWeight.bold : FontWeight.w600, fontSize: 16, color: AppColors.navy)),
-                    Text(time, style: TextStyle(color: isUnread ? AppColors.accent : Colors.grey, fontSize: 12, fontWeight: isUnread ? FontWeight.bold : FontWeight.normal)),
+                    Text(
+                      name,
+                      style: TextStyle(
+                        fontWeight: isUnread
+                            ? FontWeight.bold
+                            : FontWeight.w600,
+                        fontSize: 16,
+                        color: AppColors.navy,
+                      ),
+                    ),
+                    Text(
+                      time,
+                      style: TextStyle(
+                        color: isUnread ? AppColors.accent : Colors.grey,
+                        fontSize: 12,
+                        fontWeight: isUnread
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 6),
@@ -110,7 +179,10 @@ class DoctorConsultScreen extends StatelessWidget {
                   lastMessage,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: isUnread ? Colors.black87 : Colors.grey[600], fontSize: 14),
+                  style: TextStyle(
+                    color: isUnread ? Colors.black87 : Colors.grey[600],
+                    fontSize: 14,
+                  ),
                 ),
               ],
             ),
@@ -120,7 +192,7 @@ class DoctorConsultScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.videocam, color: AppColors.accent),
             onPressed: () {}, // Xử lý mở giao diện gọi video
-          )
+          ),
         ],
       ),
     );

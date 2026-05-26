@@ -5,7 +5,8 @@ class DoctorAppointmentScreen extends StatefulWidget {
   const DoctorAppointmentScreen({super.key});
 
   @override
-  State<DoctorAppointmentScreen> createState() => _DoctorAppointmentScreenState();
+  State<DoctorAppointmentScreen> createState() =>
+      _DoctorAppointmentScreenState();
 }
 
 class _DoctorAppointmentScreenState extends State<DoctorAppointmentScreen> {
@@ -32,12 +33,20 @@ class _DoctorAppointmentScreenState extends State<DoctorAppointmentScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.navy, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: AppColors.navy,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           'Quản lý Lịch khám',
-          style: TextStyle(color: AppColors.navy, fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: AppColors.navy,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
       ),
@@ -45,9 +54,7 @@ class _DoctorAppointmentScreenState extends State<DoctorAppointmentScreen> {
         children: [
           _buildDateSelector(),
           _buildStatusTabs(),
-          Expanded(
-            child: _buildAppointmentList(),
-          ),
+          Expanded(child: _buildAppointmentList()),
         ],
       ),
     );
@@ -75,9 +82,19 @@ class _DoctorAppointmentScreenState extends State<DoctorAppointmentScreen> {
                 decoration: BoxDecoration(
                   color: isSelected ? AppColors.navy : Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: isSelected ? AppColors.navy : Colors.grey.withValues(alpha:0.3)),
+                  border: Border.all(
+                    color: isSelected
+                        ? AppColors.navy
+                        : Colors.grey.withValues(alpha: 0.3),
+                  ),
                   boxShadow: isSelected
-                      ? [BoxShadow(color: AppColors.navy.withValues(alpha:0.3), blurRadius: 8, offset: const Offset(0, 4))]
+                      ? [
+                          BoxShadow(
+                            color: AppColors.navy.withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]
                       : [],
                 ),
                 child: Column(
@@ -117,7 +134,7 @@ class _DoctorAppointmentScreenState extends State<DoctorAppointmentScreen> {
       child: Container(
         height: 45,
         decoration: BoxDecoration(
-          color: Colors.grey.withValues(alpha:0.1),
+          color: Colors.grey.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(25),
         ),
         child: Row(
@@ -142,7 +159,12 @@ class _DoctorAppointmentScreenState extends State<DoctorAppointmentScreen> {
             color: isSelected ? Colors.white : Colors.transparent,
             borderRadius: BorderRadius.circular(25),
             boxShadow: isSelected
-                ? [BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 4)]
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 4,
+                    ),
+                  ]
                 : [],
           ),
           child: Text(
@@ -165,9 +187,27 @@ class _DoctorAppointmentScreenState extends State<DoctorAppointmentScreen> {
       return ListView(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         children: [
-          _buildAppointmentCard('Nguyễn Văn A', 'Nam, 45T', '08:30 - 09:00', 'Tái khám định kỳ', Colors.orange),
-          _buildAppointmentCard('Trần Thị B', 'Nữ, 32T', '09:15 - 09:45', 'Tư vấn đau đầu', AppColors.accent),
-          _buildAppointmentCard('Lê Văn C', 'Nam, 28T', '10:00 - 10:30', 'Khám tổng quát', Colors.green),
+          _buildAppointmentCard(
+            'Nguyễn Văn A',
+            'Nam, 45T',
+            '08:30 - 09:00',
+            'Tái khám định kỳ',
+            Colors.orange,
+          ),
+          _buildAppointmentCard(
+            'Trần Thị B',
+            'Nữ, 32T',
+            '09:15 - 09:45',
+            'Tư vấn đau đầu',
+            AppColors.accent,
+          ),
+          _buildAppointmentCard(
+            'Lê Văn C',
+            'Nam, 28T',
+            '10:00 - 10:30',
+            'Khám tổng quát',
+            Colors.green,
+          ),
         ],
       );
     } else if (_selectedTabIndex == 1) {
@@ -175,25 +215,47 @@ class _DoctorAppointmentScreenState extends State<DoctorAppointmentScreen> {
       return ListView(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         children: [
-          _buildAppointmentCard('Phạm D', 'Nam, 50T', '07:00 - 07:30', 'Đọc kết quả máu', Colors.grey, isCompleted: true),
+          _buildAppointmentCard(
+            'Phạm D',
+            'Nam, 50T',
+            '07:00 - 07:30',
+            'Đọc kết quả máu',
+            Colors.grey,
+            isCompleted: true,
+          ),
         ],
       );
     } else {
       // TAB: ĐÃ HUỶ
       return const Center(
-        child: Text('Không có lịch khám nào bị huỷ', style: TextStyle(color: Colors.grey)),
+        child: Text(
+          'Không có lịch khám nào bị huỷ',
+          style: TextStyle(color: Colors.grey),
+        ),
       );
     }
   }
 
-  Widget _buildAppointmentCard(String name, String info, String time, String reason, Color indicatorColor, {bool isCompleted = false}) {
+  Widget _buildAppointmentCard(
+    String name,
+    String info,
+    String time,
+    String reason,
+    Color indicatorColor, {
+    bool isCompleted = false,
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha:0.03), blurRadius: 10)],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,7 +265,11 @@ class _DoctorAppointmentScreenState extends State<DoctorAppointmentScreen> {
             children: [
               Text(
                 time,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.navy),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  color: AppColors.navy,
+                ),
               ),
               Icon(Icons.more_horiz, color: Colors.grey[400]),
             ],
@@ -213,8 +279,13 @@ class _DoctorAppointmentScreenState extends State<DoctorAppointmentScreen> {
             children: [
               CircleAvatar(
                 radius: 24,
-                backgroundColor: isCompleted ? Colors.grey[100] : AppColors.surfaceMuted,
-                child: Icon(Icons.person, color: isCompleted ? Colors.grey : AppColors.navy),
+                backgroundColor: isCompleted
+                    ? Colors.grey[100]
+                    : AppColors.surfaceMuted,
+                child: Icon(
+                  Icons.person,
+                  color: isCompleted ? Colors.grey : AppColors.navy,
+                ),
               ),
               const SizedBox(width: 15),
               Expanded(
@@ -227,15 +298,30 @@ class _DoctorAppointmentScreenState extends State<DoctorAppointmentScreen> {
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: isCompleted ? Colors.grey : AppColors.navy,
-                        decoration: isCompleted ? TextDecoration.lineThrough : null, // Gạch ngang tên nếu đã khám xong
+                        decoration: isCompleted
+                            ? TextDecoration.lineThrough
+                            : null, // Gạch ngang tên nếu đã khám xong
                       ),
                     ),
                     const SizedBox(height: 5),
                     Row(
                       children: [
-                        Container(width: 8, height: 8, decoration: BoxDecoration(color: indicatorColor, shape: BoxShape.circle)),
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: indicatorColor,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
                         const SizedBox(width: 6),
-                        Text(reason, style: TextStyle(fontSize: 13, color: Colors.grey[600])),
+                        Text(
+                          reason,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey[600],
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -251,8 +337,11 @@ class _DoctorAppointmentScreenState extends State<DoctorAppointmentScreen> {
                   child: OutlinedButton(
                     onPressed: () {},
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.redAccent, side: const BorderSide(color: Colors.redAccent),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      foregroundColor: Colors.redAccent,
+                      side: const BorderSide(color: Colors.redAccent),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                     child: const Text('Huỷ lịch'),
                   ),
@@ -262,15 +351,18 @@ class _DoctorAppointmentScreenState extends State<DoctorAppointmentScreen> {
                   child: ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.navy, foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      backgroundColor: AppColors.navy,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                     child: const Text('Vào khám'),
                   ),
                 ),
               ],
             ),
-          ]
+          ],
         ],
       ),
     );

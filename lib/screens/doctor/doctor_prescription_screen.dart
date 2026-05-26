@@ -5,13 +5,18 @@ class DoctorPrescriptionScreen extends StatefulWidget {
   const DoctorPrescriptionScreen({super.key});
 
   @override
-  State<DoctorPrescriptionScreen> createState() => _DoctorPrescriptionScreenState();
+  State<DoctorPrescriptionScreen> createState() =>
+      _DoctorPrescriptionScreenState();
 }
 
 class _DoctorPrescriptionScreenState extends State<DoctorPrescriptionScreen> {
   // Danh sách thuốc bác sĩ đã thêm vào đơn
   final List<Map<String, String>> _addedMedicines = [
-    {'name': 'Paracetamol 500mg', 'dosage': 'Uống 2 viên/ngày chia 2 lần sau ăn', 'quantity': '10 viên'},
+    {
+      'name': 'Paracetamol 500mg',
+      'dosage': 'Uống 2 viên/ngày chia 2 lần sau ăn',
+      'quantity': '10 viên',
+    },
   ];
 
   @override
@@ -22,12 +27,20 @@ class _DoctorPrescriptionScreenState extends State<DoctorPrescriptionScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.navy, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: AppColors.navy,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           'Kê đơn thuốc',
-          style: TextStyle(color: AppColors.navy, fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: AppColors.navy,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
       ),
@@ -42,12 +55,21 @@ class _DoctorPrescriptionScreenState extends State<DoctorPrescriptionScreen> {
                 const Icon(Icons.person, color: Colors.grey),
                 const SizedBox(width: 10),
                 const Text('Bệnh nhân: ', style: TextStyle(color: Colors.grey)),
-                const Text('Nguyễn Văn A', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy)),
+                const Text(
+                  'Nguyễn Văn A',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.navy,
+                  ),
+                ),
                 const Spacer(),
                 TextButton(
                   onPressed: () {}, // Chọn bệnh nhân khác
-                  child: const Text('Thay đổi', style: TextStyle(color: AppColors.accent)),
-                )
+                  child: const Text(
+                    'Thay đổi',
+                    style: TextStyle(color: AppColors.accent),
+                  ),
+                ),
               ],
             ),
           ),
@@ -64,7 +86,9 @@ class _DoctorPrescriptionScreenState extends State<DoctorPrescriptionScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey.withValues(alpha:0.3)),
+                      border: Border.all(
+                        color: Colors.grey.withValues(alpha: 0.3),
+                      ),
                     ),
                     child: const TextField(
                       decoration: InputDecoration(
@@ -77,14 +101,17 @@ class _DoctorPrescriptionScreenState extends State<DoctorPrescriptionScreen> {
                 ),
                 const SizedBox(width: 10),
                 Container(
-                  decoration: BoxDecoration(color: AppColors.navy, borderRadius: BorderRadius.circular(12)),
+                  decoration: BoxDecoration(
+                    color: AppColors.navy,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: IconButton(
                     icon: const Icon(Icons.add, color: Colors.white),
                     onPressed: () {
                       // Xử lý logic hiển thị popup thêm thuốc
                     },
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -104,7 +131,9 @@ class _DoctorPrescriptionScreenState extends State<DoctorPrescriptionScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.navy.withValues(alpha:0.1)),
+                    border: Border.all(
+                      color: AppColors.navy.withValues(alpha: 0.1),
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,28 +141,58 @@ class _DoctorPrescriptionScreenState extends State<DoctorPrescriptionScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(med['name']!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.navy)),
-                          Text(med['quantity']!, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.accent)),
+                          Text(
+                            med['name']!,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: AppColors.navy,
+                            ),
+                          ),
+                          Text(
+                            med['quantity']!,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.accent,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 8),
-                      Text('Cách dùng: ${med['dosage']}', style: TextStyle(color: Colors.grey[700], fontSize: 13)),
+                      Text(
+                        'Cách dùng: ${med['dosage']}',
+                        style: TextStyle(color: Colors.grey[700], fontSize: 13),
+                      ),
                       const SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           TextButton.icon(
                             onPressed: () {},
-                            icon: const Icon(Icons.edit, size: 16, color: Colors.orange),
-                            label: const Text('Sửa', style: TextStyle(color: Colors.orange)),
+                            icon: const Icon(
+                              Icons.edit,
+                              size: 16,
+                              color: Colors.orange,
+                            ),
+                            label: const Text(
+                              'Sửa',
+                              style: TextStyle(color: Colors.orange),
+                            ),
                           ),
                           TextButton.icon(
                             onPressed: () {},
-                            icon: const Icon(Icons.delete, size: 16, color: Colors.red),
-                            label: const Text('Xóa', style: TextStyle(color: Colors.red)),
+                            icon: const Icon(
+                              Icons.delete,
+                              size: 16,
+                              color: Colors.red,
+                            ),
+                            label: const Text(
+                              'Xóa',
+                              style: TextStyle(color: Colors.red),
+                            ),
                           ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 );
@@ -146,16 +205,31 @@ class _DoctorPrescriptionScreenState extends State<DoctorPrescriptionScreen> {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 10, offset: const Offset(0, -5))],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, -5),
+            ),
+          ],
         ),
         child: ElevatedButton(
           onPressed: () {},
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.navy,
             padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
-          child: const Text('Gửi đơn thuốc cho Bệnh nhân', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+          child: const Text(
+            'Gửi đơn thuốc cho Bệnh nhân',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
         ),
       ),
     );

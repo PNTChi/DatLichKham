@@ -56,23 +56,37 @@ class _LoginScreenState extends State<LoginScreen> {
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _selectedRole,
                     dropdownColor: const Color(0xFF1F2970),
                     isExpanded: true,
-                    icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                    icon: const Icon(
+                      Icons.arrow_drop_down,
+                      color: Colors.white,
+                    ),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
                     items: const [
-                      DropdownMenuItem(value: 'patient', child: Text('Vai trò: Bệnh nhân')),
-                      DropdownMenuItem(value: 'doctor', child: Text('Vai trò: Bác sĩ')),
-                      DropdownMenuItem(value: 'admin', child: Text('Vai trò: Quản trị viên')),
+                      DropdownMenuItem(
+                        value: 'patient',
+                        child: Text('Vai trò: Bệnh nhân'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'doctor',
+                        child: Text('Vai trò: Bác sĩ'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'admin',
+                        child: Text('Vai trò: Quản trị viên'),
+                      ),
                     ],
                     onChanged: (value) {
                       setState(() {
@@ -142,7 +156,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => OtpScreen(role: _selectedRole),
+                              builder: (context) =>
+                                  OtpScreen(role: _selectedRole),
                             ),
                           );
                         },
@@ -175,12 +190,24 @@ class _LoginScreenState extends State<LoginScreen> {
               TextButton(
                 onPressed: () {
                   if (_selectedRole == 'doctor') {
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const DoctorHomeScreen()));
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const DoctorHomeScreen(),
+                      ),
+                    );
                   } else if (_selectedRole == 'admin') {
                     // TODO: Đổi thành AdminHomeScreen khi bạn code xong
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Chưa có màn hình Admin')));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Chưa có màn hình Admin')),
+                    );
                   } else {
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const PatientHomeScreen()));
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PatientHomeScreen(),
+                      ),
+                    );
                   }
                 },
                 child: const Text(

@@ -104,15 +104,21 @@ class OtpScreen extends StatelessWidget {
                   if (role == 'doctor') {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => const DoctorHomeScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const DoctorHomeScreen(),
+                      ),
                     );
                   } else if (role == 'admin') {
                     // TODO: Đổi thành màn hình Admin khi bạn code xong
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Chưa có màn hình Admin')));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Chưa có màn hình Admin')),
+                    );
                   } else {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => const PatientHomeScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const PatientHomeScreen(),
+                      ),
                     );
                   }
                 },

@@ -140,7 +140,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                             ? const LinearGradient(
                                 colors: [
                                   AppColors.navyDeep,
-                                  AppColors.navyCard
+                                  AppColors.navyCard,
                                 ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
@@ -160,7 +160,9 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                             _days[i].split(' ').first,
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
-                              color: selected ? AppColors.accent : Colors.black54,
+                              color: selected
+                                  ? AppColors.accent
+                                  : Colors.black54,
                               fontSize: 13,
                             ),
                           ),
