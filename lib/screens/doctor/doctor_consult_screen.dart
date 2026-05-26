@@ -30,7 +30,7 @@ class DoctorConsultScreen extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.1),
+                color: Colors.grey.withValues(alpha:0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: const TextField(
@@ -71,7 +71,7 @@ class DoctorConsultScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 8)],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha:0.02), blurRadius: 8)],
       ),
       child: Row(
         children: [

@@ -65,7 +65,7 @@ class DoctorEmrScreen extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 5, offset: const Offset(0, 3))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha:0.02), blurRadius: 5, offset: const Offset(0, 3))],
       ),
       child: Row(
         children: [
@@ -91,7 +91,7 @@ class DoctorEmrScreen extends StatelessWidget {
                 const SizedBox(height: 5),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(color: Colors.red.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                  decoration: BoxDecoration(color: Colors.red.withValues(alpha:0.1), borderRadius: BorderRadius.circular(8)),
                   child: const Text(
                     'Dị ứng: Penicillin, Hải sản',
                     style: TextStyle(color: Colors.redAccent, fontSize: 12, fontWeight: FontWeight.bold),
@@ -132,7 +132,7 @@ class DoctorEmrScreen extends StatelessWidget {
         const SizedBox(height: 10),
         Container(
           padding: const EdgeInsets.all(15),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.withOpacity(0.2))),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.withValues(alpha:0.2))),
           child: const Text('• Viêm dạ dày mãn tính\n• Rối loạn tiền đình', style: TextStyle(height: 1.5, fontSize: 14)),
         )
       ],
@@ -143,7 +143,7 @@ class DoctorEmrScreen extends StatelessWidget {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(15),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.withOpacity(0.1))),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.withValues(alpha:0.1))),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -185,7 +185,7 @@ class DoctorEmrScreen extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.withOpacity(0.1))),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.withValues(alpha:0.1))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -221,7 +221,7 @@ class DoctorEmrScreen extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.withOpacity(0.1))),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.withValues(alpha:0.1))),
       child: Row(
         children: [
           Container(

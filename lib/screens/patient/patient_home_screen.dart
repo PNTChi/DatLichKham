@@ -13,6 +13,7 @@ import 'online_consult_screen.dart';
 import 'lab_test_results_screen.dart';
 import 'health_record_screen.dart';
 import 'my_prescriptions_screen.dart';
+import 'medication_reminder_screen.dart';
 
 class PatientHomeScreen extends StatelessWidget {
   const PatientHomeScreen({super.key});
@@ -532,15 +533,10 @@ class PatientHomeScreen extends StatelessWidget {
         _buildGridItem(
           context,
           'assets/images/protect_icon.png',
-          'Bảo hiểm',
-          'Bảo vệ bản thân',
+          'Nhắc thuốc',
+          'Lịch uống thuốc',
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const InsuranceScreen(),
-              ),
-            );
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const MedicationReminderScreen()));
           },
         ),
         _buildGridItem(

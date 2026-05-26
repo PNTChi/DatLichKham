@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dat_lich_kham_app/theme/app_colors.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'hospital_map_screen.dart';
 
 /// Danh sách bệnh viện / cơ sở y tế.
 class HospitalsScreen extends StatelessWidget {
@@ -49,7 +51,9 @@ class HospitalsScreen extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const HospitalMapScreen()));
+            },
             icon: const Icon(Icons.map_outlined, color: Colors.black87),
           ),
         ],

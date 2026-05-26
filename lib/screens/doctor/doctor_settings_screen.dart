@@ -47,7 +47,7 @@ class DoctorSettingsScreen extends StatelessWidget {
             icon: const Icon(Icons.logout, color: Colors.redAccent),
             label: const Text('Đăng xuất', style: TextStyle(color: Colors.redAccent, fontSize: 16, fontWeight: FontWeight.bold)),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red.withOpacity(0.1),
+              backgroundColor: Colors.red.withValues(alpha:0.1),
               elevation: 0,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -75,7 +75,7 @@ class DoctorSettingsScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.withOpacity(0.1)),
+        border: Border.all(color: Colors.grey.withValues(alpha:0.1)),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -87,7 +87,7 @@ class DoctorSettingsScreen extends StatelessWidget {
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy)),
         subtitle: Text(subtitle, style: const TextStyle(fontSize: 12, color: Colors.grey)),
         trailing: isToggle
-            ? Switch(value: true, activeColor: AppColors.accent, onChanged: (val){})
+            ? Switch(value: true, activeThumbColor: AppColors.accent, onChanged: (val){})
             : const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
         onTap: () {},
       ),

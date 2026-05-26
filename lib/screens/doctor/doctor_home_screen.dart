@@ -100,7 +100,7 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(25),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 10)],
             ),
             child: const TextField(
               decoration: InputDecoration(
@@ -175,8 +175,8 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
             );
           },
           borderRadius: BorderRadius.circular(15),
-          splashColor: Colors.white.withOpacity(0.2), // Hiệu ứng gợn sóng trắng nhẹ
-          highlightColor: Colors.white.withOpacity(0.1),
+          splashColor: Colors.white.withValues(alpha:0.2), // Hiệu ứng gợn sóng trắng nhẹ
+          highlightColor: Colors.white.withValues(alpha:0.1),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -197,7 +197,7 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10)],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha:0.03), blurRadius: 10)],
       ),
       child: Row(
         children: [

@@ -33,7 +33,7 @@ class DoctorRevenueScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: const LinearGradient(colors: [AppColors.navy, Color(0xFF2A368F)]),
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: [BoxShadow(color: AppColors.navy.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 8))],
+                boxShadow: [BoxShadow(color: AppColors.navy.withValues(alpha:0.3), blurRadius: 15, offset: const Offset(0, 8))],
               ),
               child: Column(
                 children: [
@@ -60,7 +60,7 @@ class DoctorRevenueScreen extends StatelessWidget {
             Container(
               height: 200,
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10)]),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha:0.03), blurRadius: 10)]),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -115,12 +115,12 @@ class DoctorRevenueScreen extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.withOpacity(0.1))),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.withValues(alpha:0.1))),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), shape: BoxShape.circle),
+            decoration: BoxDecoration(color: Colors.green.withValues(alpha:0.1), shape: BoxShape.circle),
             child: const Icon(Icons.account_balance_wallet, color: Colors.green, size: 20),
           ),
           const SizedBox(width: 15),

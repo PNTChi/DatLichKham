@@ -60,7 +60,7 @@ class _AutoScrollAppointmentCardState extends State<AutoScrollAppointmentCard> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -73,7 +73,7 @@ class _AutoScrollAppointmentCardState extends State<AutoScrollAppointmentCard> {
             width: 55,
             height: 55,
             decoration: BoxDecoration(
-              color: const Color(0xFF00C2FF).withOpacity(0.15),
+              color: const Color(0xFF00C2FF).withValues(alpha:0.15),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.calendar_month_rounded, color: Color(0xFF1B2473), size: 28),

@@ -75,9 +75,9 @@ class _DoctorAppointmentScreenState extends State<DoctorAppointmentScreen> {
                 decoration: BoxDecoration(
                   color: isSelected ? AppColors.navy : Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: isSelected ? AppColors.navy : Colors.grey.withOpacity(0.3)),
+                  border: Border.all(color: isSelected ? AppColors.navy : Colors.grey.withValues(alpha:0.3)),
                   boxShadow: isSelected
-                      ? [BoxShadow(color: AppColors.navy.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))]
+                      ? [BoxShadow(color: AppColors.navy.withValues(alpha:0.3), blurRadius: 8, offset: const Offset(0, 4))]
                       : [],
                 ),
                 child: Column(
@@ -117,7 +117,7 @@ class _DoctorAppointmentScreenState extends State<DoctorAppointmentScreen> {
       child: Container(
         height: 45,
         decoration: BoxDecoration(
-          color: Colors.grey.withOpacity(0.1),
+          color: Colors.grey.withValues(alpha:0.1),
           borderRadius: BorderRadius.circular(25),
         ),
         child: Row(
@@ -142,7 +142,7 @@ class _DoctorAppointmentScreenState extends State<DoctorAppointmentScreen> {
             color: isSelected ? Colors.white : Colors.transparent,
             borderRadius: BorderRadius.circular(25),
             boxShadow: isSelected
-                ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)]
+                ? [BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 4)]
                 : [],
           ),
           child: Text(
@@ -193,7 +193,7 @@ class _DoctorAppointmentScreenState extends State<DoctorAppointmentScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10)],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha:0.03), blurRadius: 10)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
