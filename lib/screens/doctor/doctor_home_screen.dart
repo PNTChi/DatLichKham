@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:dat_lich_kham_app/screens/doctor/doctor_appointment_screen.dart';
+import 'package:dat_lich_kham_app/screens/doctor/doctor_emr_screen.dart';
+import 'package:dat_lich_kham_app/screens/doctor/doctor_consult_screen.dart';
+import 'package:dat_lich_kham_app/screens/doctor/doctor_prescription_screen.dart';
+import 'package:dat_lich_kham_app/screens/doctor/doctor_revenue_screen.dart';
+import 'package:dat_lich_kham_app/screens/doctor/doctor_settings_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/auto_scroll_appointment.dart';
+
 
 class DoctorHomeScreen extends StatefulWidget {
   const DoctorHomeScreen({super.key});
@@ -12,9 +19,9 @@ class DoctorHomeScreen extends StatefulWidget {
 class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
   int _selectedIndex = 0;
 
-  // Dữ liệu mẫu đồng bộ với phong cách Patient
+  // Dữ liệu mẫu đồng bộ
   final List<Map<String, String>> _upcomingAppointments = [
-    {'title': 'Khám Tổng quát - Nguyễn Văn A', 'time': '08:30 - 09:00', 'subtitle': 'Phòng 101'},
+    {'title': 'Khám Tổng quát - Nguyễn Văn A', 'time': '08:30 - 09:00', 'subtitle': 'Phòng khám ABC, HCM'}, // Cập nhật location
     {'title': 'Tư vấn Online - Lê Thị B', 'time': '09:15 - 09:45', 'subtitle': 'Video Call'},
     {'title': 'Đọc kết quả X-Quang - Trần C', 'time': '10:00 - 10:30', 'subtitle': 'Phòng chẩn đoán'},
   ];
@@ -30,19 +37,37 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
     );
   }
 
-  // --- APPBAR VỚI LỜI CHÀO ---
+  // --- APPBAR VỚI LỜI CHÀO VÀ ĐỊA ĐIỂM ---
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 0,
-      iconTheme: const IconThemeData(color: AppColors.navy),
+
+      leading: Builder(
+        builder: (context) {
+          return IconButton(
+            icon: const Icon(Icons.sort, color: Colors.black, size: 28),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+          );
+        },
+      ),
+
+      titleSpacing: 0,
+
       title: Row(
         children: [
           const Text(
-            'Hoàn Kiếm, Hà Nội',
-            style: TextStyle(color: AppColors.navy, fontSize: 16, fontWeight: FontWeight.bold),
+            'Hồ Chí Minh',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          Icon(Icons.arrow_drop_down, color: Colors.grey[600]),
+          const SizedBox(width: 4),
+          Icon(Icons.arrow_drop_down, color: AppColors.accent),
         ],
       ),
       actions: [
@@ -54,7 +79,7 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
     );
   }
 
-  // --- NỘI DUNG CHÍNH ---
+  // --- NỘI DUNG CHÍNH (GIỮ NGUYÊN) ---
   Widget _buildBody() {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -64,7 +89,7 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
           const SizedBox(height: 10),
           const Text('Xin chào!', style: TextStyle(color: AppColors.accent, fontSize: 16)),
           const Text(
-            'BS. Trần Hoàng Nam', // <-- Đã đổi tên ở đây
+            'BS. Trần Hoàng Nam',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.navy),
           ),
           const SizedBox(height: 20),
@@ -98,7 +123,7 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
 
           const SizedBox(height: 25),
 
-          // LƯỚI CHỨC NĂNG (Giao diện đồng bộ với Patient)
+          // LƯỚI CHỨC NĂNG (Primary Actions)
           const Text('Chức năng quản lý', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
           const SizedBox(height: 15),
           GridView.count(
@@ -108,12 +133,13 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
             mainAxisSpacing: 15,
             crossAxisSpacing: 15,
             children: [
-              _buildGridAction(Icons.calendar_month, 'Lịch khám'),
-              _buildGridAction(Icons.assignment_ind, 'Bệnh án'),
-              _buildGridAction(Icons.videocam, 'Tư vấn'),
-              _buildGridAction(Icons.analytics, 'Doanh thu'),
-              _buildGridAction(Icons.medication, 'Kê đơn'),
-              _buildGridAction(Icons.settings, 'Cài đặt'),
+              // Cập nhật lại: Bỏ thêm context và PlaceholderScreen()
+              _buildGridAction(context, Icons.calendar_month, 'Lịch khám', const DoctorAppointmentScreen()),
+              _buildGridAction(context, Icons.assignment_ind, 'Bệnh án', const DoctorEmrScreen()),
+              _buildGridAction(context, Icons.videocam, 'Tư vấn', const DoctorConsultScreen()),
+              _buildGridAction(context, Icons.analytics, 'Doanh thu', const DoctorRevenueScreen()),
+              _buildGridAction(context, Icons.medication, 'Kê đơn', const DoctorPrescriptionScreen()),
+              _buildGridAction(context, Icons.settings, 'Cài đặt', const DoctorSettingsScreen()),
             ],
           ),
 
@@ -122,7 +148,7 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
           // DANH SÁCH BỆNH NHÂN ĐANG CHỜ
           const Text('Bệnh nhân chờ khám', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.navy)),
           const SizedBox(height: 12),
-          _buildPatientItem('Nguyễn Văn A', 'Nam, 45T', '08:30', 'Tái khám định kỳ', Colors.redAccent),
+          _buildPatientItem('Nguyễn Văn A', 'Nam, 45T', '08:30', 'Tái khám định kỳ - HCM', Colors.redAccent), // Cập nhật location
           _buildPatientItem('Trần Thị B', 'Nữ, 32T', '09:15', 'Tư vấn đau đầu', Colors.orange),
           _buildPatientItem('Lê Văn C', 'Nam, 28T', '10:00', 'Khám sức khỏe', Colors.green),
           const SizedBox(height: 20),
@@ -131,19 +157,35 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
     );
   }
 
-  Widget _buildGridAction(IconData icon, String label) {
+  // --- HÀM TẠO NÚT CHỨC NĂNG CÓ HIỆU ỨNG CHẠM VÀ ĐIỀU HƯỚNG ---
+  Widget _buildGridAction(BuildContext context, IconData icon, String label, Widget targetScreen) {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.navy,
         borderRadius: BorderRadius.circular(15),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: AppColors.accent, size: 30),
-          const SizedBox(height: 8),
-          Text(label, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-        ],
+      child: Material(
+        color: Colors.transparent, // Để lộ nền xanh Navy của Container
+        child: InkWell(
+          onTap: () {
+            // Lệnh chuyển trang (Navigation)
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => targetScreen),
+            );
+          },
+          borderRadius: BorderRadius.circular(15),
+          splashColor: Colors.white.withOpacity(0.2), // Hiệu ứng gợn sóng trắng nhẹ
+          highlightColor: Colors.white.withOpacity(0.1),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: AppColors.accent, size: 30),
+              const SizedBox(height: 8),
+              Text(label, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -201,7 +243,7 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
         children: [
           const UserAccountsDrawerHeader(
             decoration: BoxDecoration(color: AppColors.navy),
-            accountName: Text('BS. Trần Hoàng Nam', style: TextStyle(fontWeight: FontWeight.bold)), // <-- Đã đổi tên ở đây
+            accountName: Text('BS. Trần Hoàng Nam', style: TextStyle(fontWeight: FontWeight.bold)),
             accountEmail: Text('nam.tran@medicare.vn'),
             currentAccountPicture: CircleAvatar(
                 backgroundColor: Colors.white,
@@ -239,6 +281,39 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
         BottomNavigationBarItem(icon: Icon(Icons.message_rounded), label: 'Tư vấn'),
         BottomNavigationBarItem(icon: Icon(Icons.person_rounded), label: 'Cá nhân'),
       ],
+    );
+  }
+}
+
+// --- MÀN HÌNH TẠM THỜI CHỜ BẠN CODE CHI TIẾT ---
+class PlaceholderScreen extends StatelessWidget {
+  final String title;
+  const PlaceholderScreen({super.key, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title, style: const TextStyle(color: Colors.black)),
+        backgroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.black),
+        elevation: 1,
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.construction_rounded, size: 80, color: Colors.orange),
+            const SizedBox(height: 20),
+            Text(
+              'Màn hình $title',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1B2473)),
+            ),
+            const SizedBox(height: 10),
+            const Text('Đang trong quá trình phát triển UI/UX...', style: TextStyle(color: Colors.grey)),
+          ],
+        ),
+      ),
     );
   }
 }
