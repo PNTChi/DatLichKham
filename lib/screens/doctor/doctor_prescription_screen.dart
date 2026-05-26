@@ -108,7 +108,14 @@ class _DoctorPrescriptionScreenState extends State<DoctorPrescriptionScreen> {
                   child: IconButton(
                     icon: const Icon(Icons.add, color: Colors.white),
                     onPressed: () {
-                      // Xử lý logic hiển thị popup thêm thuốc
+                      // Hiện thông báo giả lập thêm thuốc
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Đã thêm thuốc vào đơn!'),
+                          backgroundColor: Colors.green,
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
                     },
                   ),
                 ),
@@ -205,31 +212,25 @@ class _DoctorPrescriptionScreenState extends State<DoctorPrescriptionScreen> {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
-            ),
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -5))],
         ),
         child: ElevatedButton(
-          onPressed: () {},
+          onPressed: () {
+            // Báo thành công và tự động thoát trang
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Đã gửi đơn thuốc điện tử cho bệnh nhân!'),
+                backgroundColor: AppColors.navy,
+              ),
+            );
+            Navigator.pop(context); // Trở về trang trước
+          },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.navy,
             padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
-          child: const Text(
-            'Gửi đơn thuốc cho Bệnh nhân',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
+          child: const Text('Gửi đơn thuốc cho Bệnh nhân', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
         ),
       ),
     );

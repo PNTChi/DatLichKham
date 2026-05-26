@@ -32,13 +32,15 @@ class DoctorEmrScreen extends StatelessWidget {
           centerTitle: true,
           actions: [
             IconButton(
-              icon: const Icon(
-                Icons.edit_note,
-                color: AppColors.accent,
-                size: 28,
-              ),
-              onPressed: () {}, // Nút để bác sĩ cập nhật bệnh án
-            ),
+              icon: const Icon(Icons.edit_note, color: AppColors.accent, size: 28),
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Tính năng nhập liệu Bệnh án đang được cập nhật'),
+                  ),
+                );
+              },
+            )
           ],
           bottom: const TabBar(
             labelColor: AppColors.navy,
