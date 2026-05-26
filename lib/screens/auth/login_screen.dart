@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 import 'otp_screen.dart';
 import 'package:dat_lich_kham_app/screens/patient/patient_home_screen.dart';
+import 'package:dat_lich_kham_app/screens/doctor/doctor_home_screen.dart';
 import 'package:dat_lich_kham_app/screens/onboarding/onboarding_screen.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  // Biến lưu trạng thái vai trò người dùng
+  String _selectedRole = 'patient';
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +48,42 @@ class LoginScreen extends StatelessWidget {
                 style: TextStyle(color: Colors.white70, fontSize: 14),
               ),
 
-              const SizedBox(height: 60),
+              const SizedBox(height: 40),
+
+              // KHUNG CHỌN VAI TRÒ ĐĂNG NHẬP (MỚI THÊM)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _selectedRole,
+                    dropdownColor: const Color(0xFF1F2970),
+                    isExpanded: true,
+                    icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    items: const [
+                      DropdownMenuItem(value: 'patient', child: Text('Vai trò: Bệnh nhân')),
+                      DropdownMenuItem(value: 'doctor', child: Text('Vai trò: Bác sĩ')),
+                      DropdownMenuItem(value: 'admin', child: Text('Vai trò: Quản trị viên')),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedRole = value!;
+                      });
+                    },
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
 
               // KHUNG NHẬP SỐ ĐIỆN THOẠI
               Container(
@@ -50,7 +94,6 @@ class LoginScreen extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    // Cụm Mã quốc gia
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16.0),
                       child: Row(
@@ -66,10 +109,7 @@ class LoginScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-
                     Container(width: 1, height: 30, color: Colors.grey[300]),
-
-                    // Ô nhập số điện thoại
                     const Expanded(
                       child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -86,8 +126,6 @@ class LoginScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-
-                    // Nút mũi tên xanh (Submit)
                     Container(
                       margin: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
@@ -100,11 +138,11 @@ class LoginScreen extends StatelessWidget {
                           color: Colors.white,
                         ),
                         onPressed: () {
-                          // CHUYỂN SANG MÀN HÌNH NHẬP MÃ OTP
+                          // TRUYỀN ROLE SANG TRANG OTP
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const OtpScreen(),
+                              builder: (context) => OtpScreen(role: _selectedRole),
                             ),
                           );
                         },
@@ -133,16 +171,17 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              // NÚT "ĐĂNG KÝ SAU" & ĐIỀU KHOẢN
+              // NÚT ĐĂNG KÝ SAU (Cũng tự động phân luồng)
               TextButton(
                 onPressed: () {
-                  // VÀO THẲNG TRANG CHỦ BỆNH NHÂN
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const PatientHomeScreen(),
-                    ),
-                  );
+                  if (_selectedRole == 'doctor') {
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const DoctorHomeScreen()));
+                  } else if (_selectedRole == 'admin') {
+                    // TODO: Đổi thành AdminHomeScreen khi bạn code xong
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Chưa có màn hình Admin')));
+                  } else {
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const PatientHomeScreen()));
+                  }
                 },
                 child: const Text(
                   'Tôi sẽ đăng ký sau',

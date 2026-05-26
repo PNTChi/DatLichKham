@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-// Import Trang chủ để làm tính năng đăng nhập thành công
 import '../patient/patient_home_screen.dart';
+import '../doctor/doctor_home_screen.dart';
 
 class OtpScreen extends StatelessWidget {
-  const OtpScreen({super.key});
+  // Nhận biến role từ màn hình Login
+  final String role;
+
+  const OtpScreen({super.key, required this.role});
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +15,6 @@ class OtpScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        // Nút quay lại (Back)
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
           onPressed: () => Navigator.pop(context),
@@ -77,7 +79,6 @@ class OtpScreen extends StatelessWidget {
 
             const SizedBox(height: 40),
 
-            // Gửi lại mã
             const Text(
               'Chưa nhận được mã?',
               style: TextStyle(color: Colors.black54, fontSize: 14),
@@ -94,19 +95,26 @@ class OtpScreen extends StatelessWidget {
 
             const Spacer(),
 
-            // Nút Xác nhận (Thêm vào để app đi tiếp được)
+            // NÚT XÁC NHẬN -> CHIA LUỒNG DỰA THEO ROLE
             SizedBox(
               width: double.infinity,
               height: 55,
               child: ElevatedButton(
                 onPressed: () {
-                  // BẤM XÁC NHẬN -> CHUYỂN VÀO TRANG CHỦ
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const PatientHomeScreen(),
-                    ),
-                  );
+                  if (role == 'doctor') {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const DoctorHomeScreen()),
+                    );
+                  } else if (role == 'admin') {
+                    // TODO: Đổi thành màn hình Admin khi bạn code xong
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Chưa có màn hình Admin')));
+                  } else {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const PatientHomeScreen()),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1B2473),
@@ -131,7 +139,6 @@ class OtpScreen extends StatelessWidget {
     );
   }
 
-  // Hàm tạo 1 ô vuông nhập OTP
   Widget _buildOtpBox(String digit) {
     return Container(
       width: 55,
