@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:dat_lich_kham_app/theme/app_colors.dart';
 import 'package:dat_lich_kham_app/screens/patient/booking_success_screen.dart';
 import '../../services/database_service.dart';
+import 'package:dat_lich_kham_app/screens/patient/payment_checkout_screen.dart';
 
 class BookAppointmentScreen extends StatefulWidget {
   const BookAppointmentScreen({
     super.key,
-    required this.doctorId, // Nhận doctorId dạng UID thật
+    required this.doctorId,
     required this.doctorName,
     required this.specialty,
   });
@@ -20,37 +21,67 @@ class BookAppointmentScreen extends StatefulWidget {
 }
 
 class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
-  int _selectedDayIndex = 1;
+  DateTime _selectedDate = DateTime.now();
   String? _selectedSlot;
   bool _isLoading = false;
 
-  late final List<String> _days;
-  late final List<String> _slots;
+  final List<String> _slots = [
+    '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
+    '13:30', '14:00', '14:30', '15:00', '15:30', '16:00',
+  ];
 
-  @override
-  void initState() {
-    super.initState();
+  // Hàm mở Quyển lịch (Calendar)
+  Future<void> _pickDate() async {
     final now = DateTime.now();
-    _days = List.generate(5, (i) {
-      final d = now.add(Duration(days: i));
-      const short = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
-      final w = short[d.weekday - 1];
-      return '$w ${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}';
-    });
-    _slots = const [
-      '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
-      '13:30', '14:00', '14:30', '15:00', '15:30', '16:00',
-    ];
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: now, // Không cho đặt lịch trong quá khứ
+      lastDate: now.add(const Duration(days: 30)), // Chỉ cho đặt trước tối đa 30 ngày
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.navy,
+              onPrimary: Colors.white,
+              onSurface: Colors.black87,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedDate = picked;
+        _selectedSlot = null; // Reset giờ khi đổi ngày
+      });
+    }
   }
 
+  // Xử lý gửi dữ liệu đặt lịch
   void _handleBooking() async {
+    if (_selectedSlot == null) return;
+
     setState(() => _isLoading = true);
 
-    // LƯU UID THẬT CỦA BÁC SĨ VÀO FIELD 'doctorId' TRÊN FIRESTORE
+    final timeParts = _selectedSlot!.split(':');
+    final hour = int.parse(timeParts[0]);
+    final minute = int.parse(timeParts[1]);
+
+    final finalAppointmentTime = DateTime(
+      _selectedDate.year,
+      _selectedDate.month,
+      _selectedDate.day,
+      hour,
+      minute,
+    );
+
+    // Lưu vào Firebase
     await DatabaseService().bookAppointment(
-        widget.doctorId,
-        _days[_selectedDayIndex],
-        _selectedSlot!
+      widget.doctorId,
+      widget.doctorName,
+      finalAppointmentTime,
     );
 
     setState(() => _isLoading = false);
@@ -61,11 +92,18 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       MaterialPageRoute(
         builder: (context) => BookingSuccessScreen(
           doctorName: widget.doctorName,
-          dateLine: _days[_selectedDayIndex],
+          dateLine: _formatDateStr(_selectedDate),
           time: _selectedSlot!,
         ),
       ),
     );
+  }
+
+  // Hàm định dạng ngày hiển thị (VD: Thứ Năm, 04/06/2026)
+  String _formatDateStr(DateTime d) {
+    const weekdays = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+    final weekday = weekdays[d.weekday == 7 ? 0 : d.weekday];
+    return '$weekday, ${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -85,6 +123,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            // Thông tin bác sĩ
             Container(
               padding: const EdgeInsets.all(20),
               color: AppColors.surfaceMuted,
@@ -109,50 +148,46 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                 ],
               ),
             ),
+
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.all(20),
                 children: [
                   const Text('Ngày khám', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    height: 85,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: _days.length,
-                      separatorBuilder: (context, index) => const SizedBox(width: 12),
-                      itemBuilder: (context, i) {
-                        final sel = i == _selectedDayIndex;
-                        final parts = _days[i].split(' ');
-                        return GestureDetector(
-                          onTap: () => setState(() {
-                            _selectedDayIndex = i;
-                            _selectedSlot = null;
-                          }),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            width: 65,
-                            decoration: BoxDecoration(
-                              color: sel ? AppColors.navy : Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: sel ? AppColors.navy : Colors.grey[300]!),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(parts[0], style: TextStyle(color: sel ? Colors.white70 : Colors.grey[600], fontSize: 13, fontWeight: FontWeight.w500)),
-                                const SizedBox(height: 4),
-                                Text(parts[1], style: TextStyle(color: sel ? Colors.white : Colors.black87, fontSize: 16, fontWeight: FontWeight.bold)),
-                              ],
+                  const SizedBox(height: 12),
+
+                  // Ô Bấm chọn ngày mở Lịch
+                  InkWell(
+                    onTap: _pickDate,
+                    borderRadius: BorderRadius.circular(14),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceMuted,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: AppColors.navy, width: 1.5),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.calendar_month, color: AppColors.navy, size: 26),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Text(
+                              _formatDateStr(_selectedDate),
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy),
                             ),
                           ),
-                        );
-                      },
+                          const Text('Thay đổi', style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
                     ),
                   ),
+
                   const SizedBox(height: 32),
-                  const Text('Giờ khám', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  const Text('Khung giờ làm việc', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   const SizedBox(height: 16),
+
+                  // Lưới khung giờ cố định
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -165,17 +200,23 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                     itemCount: _slots.length,
                     itemBuilder: (context, i) {
                       final time = _slots[i];
-                      final sel = time == _selectedSlot;
+                      final isSelected = time == _selectedSlot;
                       return GestureDetector(
                         onTap: () => setState(() => _selectedSlot = time),
                         child: Container(
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: sel ? AppColors.accent : Colors.white,
+                            color: isSelected ? AppColors.navy : Colors.white,
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: sel ? AppColors.accent : Colors.grey[300]!),
+                            border: Border.all(color: isSelected ? AppColors.navy : Colors.grey[300]!),
                           ),
-                          child: Text(time, style: TextStyle(color: sel ? AppColors.navy : Colors.black87, fontWeight: sel ? FontWeight.bold : FontWeight.w500)),
+                          child: Text(
+                              time,
+                              style: TextStyle(
+                                  color: isSelected ? Colors.white : Colors.black87,
+                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500
+                              )
+                          ),
                         ),
                       );
                     },
@@ -183,13 +224,59 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                 ],
               ),
             ),
+
+            // Nút Xác nhận
             Padding(
               padding: const EdgeInsets.all(20),
               child: SizedBox(
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: _selectedSlot == null || _isLoading ? null : _handleBooking,
+                  onPressed: () async {
+                    // 1. CHUYỂN HƯỚNG SANG TRANG THANH TOÁN TRƯỚC
+                    bool? isPaid = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PaymentCheckoutScreen(
+                          title: 'Thanh toán phí khám',
+                          itemName: 'Phí đặt lịch khám', // Có thể cộng thêm tên bác sĩ vào đây
+                          quantity: 1,
+                          amountVnd: 200000, // Thu cứng 200k tiền khám
+                        ),
+                      ),
+                    );
+
+                    // 2. KIỂM TRA KẾT QUẢ TRẢ VỀ
+                    if (isPaid == true) {
+                      // NẾU TRẢ TIỀN THÀNH CÔNG -> GỌI FIREBASE LƯU LỊCH KHÁM
+                      _handleBooking();
+
+                      // (BẠN HÃY GIỮ NGUYÊN HÀM LƯU FIREBASE CŨ CỦA BẠN Ở ĐÂY)
+                      // Ví dụ: await DatabaseService().bookAppointment(...);
+
+                      if (!context.mounted) return;
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Thanh toán và Đặt lịch thành công!'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+
+                      // Đóng form đặt lịch và quay ra ngoài
+                      Navigator.pop(context);
+
+                    } else {
+                      // NẾU HỦY THANH TOÁN GIỮA CHỪNG (BẤM NÚT BACK QUAY LẠI)
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Bạn chưa thanh toán. Quá trình đặt lịch đã bị hủy.'),
+                          backgroundColor: Colors.orange,
+                        ),
+                      );
+                    }
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.navy,
                     foregroundColor: Colors.white,

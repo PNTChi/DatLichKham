@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dat_lich_kham_app/theme/app_colors.dart';
+import '../../services/database_service.dart';
 
 class ConsultChatScreen extends StatefulWidget {
   const ConsultChatScreen({
     super.key,
+    required this.chatId,
     required this.doctorName,
     required this.specialty,
   });
 
+  final String chatId;
   final String doctorName;
   final String specialty;
 
@@ -17,47 +21,27 @@ class ConsultChatScreen extends StatefulWidget {
 
 class _ConsultChatScreenState extends State<ConsultChatScreen> {
   final _controller = TextEditingController();
-  final _scroll = ScrollController();
 
-  final List<_Msg> _messages = [
-    _Msg(false, 'Xin chào, tôi có thể hỗ trợ gì cho bạn hôm nay?'),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    // Vừa mở màn hình chat lên là lập tức báo cho Firebase biết "Tui đã đọc tin nhắn rồi!"
+    DatabaseService().markChatAsRead(widget.chatId);
+  }
 
   @override
   void dispose() {
     _controller.dispose();
-    _scroll.dispose();
     super.dispose();
   }
 
   void _send() {
     final t = _controller.text.trim();
     if (t.isEmpty) return;
-    setState(() {
-      _messages.add(_Msg(true, t));
-      _controller.clear();
-    });
-    Future.delayed(const Duration(milliseconds: 600), () {
-      if (!mounted) return;
-      setState(() {
-        _messages.add(
-          _Msg(
-            false,
-            'Cảm ơn bạn đã chia sẻ. Hệ thống sẽ tiếp nhận và phản hồi chi tiết trong vài phút.',
-          ),
-        );
-      });
-      _scroll.jumpTo(_scroll.position.maxScrollExtent + 80);
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scroll.hasClients) {
-        _scroll.animateTo(
-          _scroll.position.maxScrollExtent + 100,
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOut,
-        );
-      }
-    });
+
+    // Gửi tin nhắn lên Firebase
+    DatabaseService().sendMessage(widget.chatId, t);
+    _controller.clear();
   }
 
   @override
@@ -82,13 +66,31 @@ class _ConsultChatScreenState extends State<ConsultChatScreen> {
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
-              controller: _scroll,
-              padding: const EdgeInsets.all(16),
-              itemCount: _messages.length,
-              itemBuilder: (context, i) {
-                final m = _messages[i];
-                return _Bubble(msg: m);
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('chats')
+                  .doc(widget.chatId)
+                  .collection('messages')
+                  .orderBy('timestamp', descending: true)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator(color: AppColors.navy));
+                }
+
+                final msgs = snapshot.data!.docs;
+
+                return ListView.builder(
+                  reverse: true, // Tin nhắn mới nhất nằm ở dưới
+                  padding: const EdgeInsets.all(16),
+                  itemCount: msgs.length,
+                  itemBuilder: (context, i) {
+                    final data = msgs[i].data() as Map<String, dynamic>;
+                    final isUser = data['senderId'] == DatabaseService().currentUid;
+
+                    return _Bubble(text: data['text'] ?? '', fromUser: isUser);
+                  },
+                );
               },
             ),
           ),
@@ -138,35 +140,29 @@ class _ConsultChatScreenState extends State<ConsultChatScreen> {
   }
 }
 
-class _Msg {
-  final bool fromUser;
-  final String text;
-  _Msg(this.fromUser, this.text);
-}
-
 class _Bubble extends StatelessWidget {
-  const _Bubble({required this.msg});
-  final _Msg msg;
+  const _Bubble({required this.text, required this.fromUser});
+  final String text;
+  final bool fromUser;
 
   @override
   Widget build(BuildContext context) {
-    final user = msg.fromUser;
     return Align(
-      alignment: user ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: fromUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.78),
         decoration: BoxDecoration(
-          color: user ? AppColors.navy : Colors.white,
+          color: fromUser ? AppColors.navy : Colors.white,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
-            bottomLeft: Radius.circular(user ? 16 : 4),
-            bottomRight: Radius.circular(user ? 4 : 16),
+            bottomLeft: Radius.circular(fromUser ? 16 : 4),
+            bottomRight: Radius.circular(fromUser ? 4 : 16),
           ),
         ),
-        child: Text(msg.text, style: TextStyle(color: user ? Colors.white : Colors.black87, fontSize: 15, height: 1.4)),
+        child: Text(text, style: TextStyle(color: fromUser ? Colors.white : Colors.black87, fontSize: 15, height: 1.4)),
       ),
     );
   }

@@ -133,21 +133,22 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
             height: 52,
             child: ElevatedButton(
               onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PharmacyOrderSuccessScreen(
-                      amountVnd: widget.amountVnd,
-                      itemName: widget.itemName,
-                      quantity: widget.quantity,
-                      headline:
-                          widget.successHeadline ?? 'Đặt hàng thành công!',
-                      footerHint:
-                          widget.successFooterHint ??
-                          'Đơn hàng đang được xử lý. Bạn sẽ nhận thông báo khi giao hàng.',
+                if (widget.title == 'Thanh toán phí khám') {
+                  Navigator.pop(context, true);
+                } else {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PharmacyOrderSuccessScreen(
+                        amountVnd: widget.amountVnd,
+                        itemName: widget.itemName,
+                        quantity: widget.quantity,
+                        headline: widget.successHeadline ?? 'Đặt hàng thành công!',
+                        footerHint: widget.successFooterHint ?? 'Đơn hàng đang được xử lý. Bạn sẽ nhận thông báo khi giao hàng.',
+                      ),
                     ),
-                  ),
-                );
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.navy,

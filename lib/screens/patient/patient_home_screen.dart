@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/database_service.dart';
-
 import 'settings_screen.dart';
 import 'search_doctor_screen.dart';
 import 'doctor_list_screen.dart';
@@ -16,6 +15,7 @@ import 'lab_test_results_screen.dart';
 import 'health_record_screen.dart';
 import 'my_prescriptions_screen.dart';
 import 'medication_reminder_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class PatientHomeScreen extends StatelessWidget {
   const PatientHomeScreen({super.key});
@@ -31,48 +31,54 @@ class PatientHomeScreen extends StatelessWidget {
         child: Column(
           children: [
             // Header Menu
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.only(
-                top: 60,
-                bottom: 30,
-                left: 20,
-                right: 20,
-              ),
-              decoration: const BoxDecoration(
-                color: Color(0xFF1B2473),
-                borderRadius: BorderRadius.only(
-                  bottomRight: Radius.circular(30),
-                ),
-              ),
-              child: Row(
-                children: [
-                  const CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.white,
-                    child: Icon(Icons.person, size: 40, color: Colors.grey),
+            StreamBuilder<DocumentSnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(FirebaseAuth.instance.currentUser?.uid)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                String name = "Đang tải...";
+                String phone = "";
+
+                if (snapshot.hasData && snapshot.data!.exists) {
+                  final data = snapshot.data!.data() as Map<String, dynamic>;
+                  name = data['fullName'] ?? 'Người dùng';
+                  phone = data['phoneNumber'] ?? '';
+                }
+
+                return Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.only(top: 60, bottom: 30, left: 20, right: 20),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF1B2473),
+                    borderRadius: BorderRadius.only(bottomRight: Radius.circular(30)),
                   ),
-                  const SizedBox(width: 15),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
                     children: [
-                      const Text(
-                        'Trần Đình Phi',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      const CircleAvatar(
+                        radius: 30,
+                        backgroundColor: Colors.white,
+                        child: Icon(Icons.person, size: 40, color: Colors.grey),
                       ),
-                      const SizedBox(height: 5),
-                      Text(
-                        '+84 98765 43210',
-                        style: TextStyle(color: Colors.white70, fontSize: 13),
+                      const SizedBox(width: 15),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            name,
+                            style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            phone,
+                            style: const TextStyle(color: Colors.white70, fontSize: 13),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                );
+              },
             ),
 
             // Danh sách các mục trong menu
@@ -81,118 +87,43 @@ class PatientHomeScreen extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 20),
                 children: [
                   ListTile(
-                    leading: const Icon(
-                      Icons.calendar_month,
-                      color: Colors.blue,
-                      size: 26,
-                    ),
-                    title: const Text(
-                      'Lịch khám của tôi',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                    leading: const Icon(Icons.calendar_month, color: Colors.blue, size: 26),
+                    title: const Text('Lịch khám của tôi', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
                     onTap: () {
                       Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const MyAppointmentsScreen(),
-                        ),
-                      );
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const MyAppointmentsScreen()));
                     },
                   ),
                   ListTile(
-                    leading: const Icon(
-                      Icons.medication,
-                      color: Colors.blueAccent,
-                      size: 26,
-                    ),
-                    title: const Text(
-                      'Đơn thuốc của tôi',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                    leading: const Icon(Icons.medication, color: Colors.blueAccent, size: 26),
+                    title: const Text('Đơn thuốc của tôi', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
                     onTap: () {
                       Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const MyPrescriptionsScreen(),
-                        ),
-                      );
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const MyPrescriptionsScreen()));
                     },
                   ),
                   ListTile(
-                    leading: const Icon(
-                      Icons.science,
-                      color: Colors.lightBlue,
-                      size: 26,
-                    ),
-                    title: const Text(
-                      'Kết quả xét nghiệm',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                    leading: const Icon(Icons.science, color: Colors.lightBlue, size: 26),
+                    title: const Text('Kết quả xét nghiệm', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
                     onTap: () {
                       Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LabTestResultsScreen(),
-                        ),
-                      );
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const LabTestResultsScreen()));
                     },
                   ),
                   ListTile(
-                    leading: Icon(
-                      Icons.video_call,
-                      color: Colors.blue[700]!,
-                      size: 26,
-                    ),
-                    title: const Text(
-                      'Khám trực tuyến',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                    leading: Icon(Icons.video_call, color: Colors.blue[700]!, size: 26),
+                    title: const Text('Khám trực tuyến', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
                     onTap: () {
                       Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const OnlineConsultScreen(),
-                        ),
-                      );
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const OnlineConsultScreen()));
                     },
                   ),
                   ListTile(
-                    leading: Icon(
-                      Icons.shield,
-                      color: Colors.blue[600]!,
-                      size: 26,
-                    ),
-                    title: const Text(
-                      'Hồ sơ sức khỏe',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                    leading: Icon(Icons.shield, color: Colors.blue[600]!, size: 26),
+                    title: const Text('Hồ sơ sức khỏe', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
                     onTap: () {
                       Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const HealthRecordScreen(),
-                        ),
-                      );
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const HealthRecordScreen()));
                     },
                   ),
                 ],
@@ -202,76 +133,40 @@ class PatientHomeScreen extends StatelessWidget {
             // 3 nút dưới cùng (Footer)
             Container(
               padding: const EdgeInsets.symmetric(vertical: 20),
-              decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: Colors.grey[200]!)),
-              ),
+              decoration: BoxDecoration(border: Border(top: BorderSide(color: Colors.grey[200]!))),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  // Nút Cài đặt
                   InkWell(
                     onTap: () {
                       Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SettingsScreen(),
-                        ),
-                      );
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
                     },
                     child: Column(
                       children: const [
                         Icon(Icons.settings, color: Colors.black87, size: 26),
                         SizedBox(height: 8),
-                        Text(
-                          'Cài đặt',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+                        Text('Cài đặt', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
                       ],
                     ),
                   ),
-                  // Nút Hỗ trợ
                   InkWell(
                     onTap: () {},
                     child: Column(
                       children: const [
-                        Icon(
-                          Icons.support_agent,
-                          color: Colors.black87,
-                          size: 26,
-                        ),
+                        Icon(Icons.support_agent, color: Colors.black87, size: 26),
                         SizedBox(height: 8),
-                        Text(
-                          'Hỗ trợ 24/7',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+                        Text('Hỗ trợ 24/7', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
                       ],
                     ),
                   ),
-                  // Nút Về chúng tôi
                   InkWell(
                     onTap: () {},
                     child: Column(
                       children: const [
-                        Icon(
-                          Icons.health_and_safety,
-                          color: Colors.black87,
-                          size: 26,
-                        ),
+                        Icon(Icons.health_and_safety, color: Colors.black87, size: 26),
                         SizedBox(height: 8),
-                        Text(
-                          'Về chúng tôi',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+                        Text('Về chúng tôi', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
                       ],
                     ),
                   ),
@@ -300,42 +195,23 @@ class PatientHomeScreen extends StatelessWidget {
                         Builder(
                           builder: (context) {
                             return InkWell(
-                              onTap: () {
-                                Scaffold.of(context).openDrawer();
-                              },
-                              child: const Icon(
-                                Icons.sort,
-                                color: Colors.black87,
-                                size: 28,
-                              ),
+                              onTap: () => Scaffold.of(context).openDrawer(),
+                              child: const Icon(Icons.sort, color: Colors.black87, size: 28),
                             );
                           },
                         ),
                         const SizedBox(width: 15),
-                        const Text(
-                          'Hồ Chí Minh',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
-                        ),
+                        const Text('Hồ Chí Minh', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
                         Icon(Icons.arrow_drop_down, color: Colors.blue[600]),
                       ],
                     ),
+
+                    // NÚT CHUÔNG THÔNG BÁO (Đã gỡ nút "Bơm dữ liệu" màu đỏ)
                     InkWell(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const NotificationsScreen(),
-                          ),
-                        );
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const NotificationsScreen()));
                       },
-                      child: const Icon(
-                        Icons.notifications_none,
-                        color: Colors.black54,
-                        size: 28,
-                      ),
+                      child: const Icon(Icons.notifications_none, color: Colors.black54, size: 28),
                     ),
                   ],
                 ),
@@ -348,19 +224,9 @@ class PatientHomeScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 10),
-                    const Text(
-                      'Xin chào!',
-                      style: TextStyle(fontSize: 16, color: Colors.blueAccent),
-                    ),
+                    const Text('Xin chào!', style: TextStyle(fontSize: 16, color: Colors.blueAccent)),
                     const SizedBox(height: 5),
-                    const Text(
-                      'Bạn cần hỗ trợ gì hôm nay?',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
+                    const Text('Bạn cần hỗ trợ gì hôm nay?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87)),
                     const SizedBox(height: 20),
                     _buildSearchBar(context),
                   ],
@@ -377,7 +243,7 @@ class PatientHomeScreen extends StatelessWidget {
 
               const SizedBox(height: 25),
 
-              // BÁC SĨ NỔI BẬT (Đã kết nối Firebase)
+              // BÁC SĨ NỔI BẬT
               _buildSectionTitle('Bác sĩ nổi bật'),
               const SizedBox(height: 15),
               _buildRecentlyVisitedList(),
@@ -420,21 +286,11 @@ class PatientHomeScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
+          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
           if (showViewAll)
             TextButton(
               onPressed: () {},
-              child: Text(
-                'Xem tất cả',
-                style: TextStyle(color: Colors.blue[600], fontSize: 13),
-              ),
+              child: Text('Xem tất cả', style: TextStyle(color: Colors.blue[600], fontSize: 13)),
             ),
         ],
       ),
@@ -452,10 +308,7 @@ class PatientHomeScreen extends StatelessWidget {
       child: TextField(
         readOnly: true,
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const SearchDoctorScreen()),
-          );
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const SearchDoctorScreen()));
         },
         decoration: const InputDecoration(
           hintText: 'Tìm bác sĩ, chuyên khoa, phòng khám...',
@@ -466,7 +319,6 @@ class PatientHomeScreen extends StatelessWidget {
     );
   }
 
-  // LƯỚI 6 HÀNH ĐỘNG GỐC
   Widget _buildPrimaryActionsGrid(BuildContext context) {
     return GridView.count(
       crossAxisCount: 2,
@@ -481,76 +333,42 @@ class PatientHomeScreen extends StatelessWidget {
           'assets/images/doctor_icon.png',
           'Bác sĩ',
           'Đặt lịch hẹn',
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const DoctorListScreen()),
-            );
-          },
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const DoctorListScreen())),
         ),
         _buildGridItem(
           context,
           'assets/images/xetnghiem_icon.png',
           'Xét nghiệm',
           'Kiểm tra sức khỏe',
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const LabTestsScreen()),
-            );
-          },
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const LabTestsScreen())),
         ),
         _buildGridItem(
           context,
           'assets/images/hospital_icon.png',
           'Bệnh viện',
           'Tìm bệnh viện tốt nhất',
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const HospitalsScreen()),
-            );
-          },
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const HospitalsScreen())),
         ),
         _buildGridItem(
           context,
           'assets/images/medicine_icon.png',
           'Nhà thuốc',
           'Đặt mua thuốc',
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const PharmacyScreen()),
-            );
-          },
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PharmacyScreen())),
         ),
         _buildGridItem(
           context,
           'assets/images/protect_icon.png',
           'Nhắc thuốc',
           'Lịch uống thuốc',
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const MedicationReminderScreen(),
-              ),
-            );
-          },
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const MedicationReminderScreen())),
         ),
         _buildGridItem(
           context,
           'assets/images/tuvanonl_icon.png',
           'Tư vấn Online',
           'Liên hệ với chúng tôi để được tư vấn',
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const OnlineConsultScreen(),
-              ),
-            );
-          },
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const OnlineConsultScreen())),
         ),
       ],
     );
@@ -578,19 +396,9 @@ class PatientHomeScreen extends StatelessWidget {
         children: [
           Image.asset(imagePath, width: 40, height: 40, fit: BoxFit.contain),
           const Spacer(),
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
+          Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(height: 4),
-          Text(
-            subtitle,
-            style: const TextStyle(color: Color(0xFFE0E0E0), fontSize: 10),
-          ),
+          Text(subtitle, style: const TextStyle(color: Color(0xFFE0E0E0), fontSize: 10)),
         ],
       ),
     );
@@ -608,7 +416,6 @@ class PatientHomeScreen extends StatelessWidget {
     return card;
   }
 
-  // ================= ĐÃ CẬP NHẬT KẾT NỐI FIREBASE =================
   Widget _buildRecentlyVisitedList() {
     return SizedBox(
       height: 140,
@@ -620,9 +427,7 @@ class PatientHomeScreen extends StatelessWidget {
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(
-              child: Text('Chưa có bác sĩ nào', style: TextStyle(color: Colors.grey)),
-            );
+            return const Center(child: Text('Chưa có bác sĩ nào', style: TextStyle(color: Colors.grey)));
           }
 
           final doctors = snapshot.data!.docs;
@@ -635,7 +440,6 @@ class PatientHomeScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               var docData = doctors[index].data() as Map<String, dynamic>;
 
-              // Cào dữ liệu động
               String docId = doctors[index].id;
               String name = docData['fullName'] ?? 'Bác sĩ';
               String specialty = docData['specialty'] ?? 'Đa khoa';
@@ -673,11 +477,7 @@ class PatientHomeScreen extends StatelessWidget {
                         CircleAvatar(
                           radius: 30,
                           backgroundColor: Colors.grey[200],
-                          child: const Icon(
-                            Icons.person,
-                            size: 40,
-                            color: Colors.grey,
-                          ),
+                          child: const Icon(Icons.person, size: 40, color: Colors.grey),
                         ),
                         const SizedBox(height: 10),
                         Padding(
@@ -691,10 +491,7 @@ class PatientHomeScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          specialty,
-                          style: TextStyle(color: Colors.blue[600], fontSize: 11),
-                        ),
+                        Text(specialty, style: TextStyle(color: Colors.blue[600], fontSize: 11)),
                       ],
                     ),
                   ),
@@ -718,9 +515,7 @@ class PatientHomeScreen extends StatelessWidget {
         itemBuilder: (context, index) {
           String name = index == 0 ? 'Tim mạch' : 'Nhi khoa';
           String specialists = index == 0 ? '250 Bác sĩ' : '150 Bác sĩ';
-          IconData icon = index == 0
-              ? Icons.favorite_border
-              : Icons.child_care_outlined;
+          IconData icon = index == 0 ? Icons.favorite_border : Icons.child_care_outlined;
 
           return Container(
             width: 110,
@@ -736,18 +531,11 @@ class PatientHomeScreen extends StatelessWidget {
                 const SizedBox(height: 10),
                 Text(
                   name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1F2970),
-                    fontSize: 12,
-                  ),
+                  style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1F2970), fontSize: 12),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  specialists,
-                  style: TextStyle(color: Colors.blue[600], fontSize: 10),
-                ),
+                Text(specialists, style: TextStyle(color: Colors.blue[600], fontSize: 10)),
               ],
             ),
           );
@@ -759,46 +547,24 @@ class PatientHomeScreen extends StatelessWidget {
   Widget _buildLabTestBanner() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFF3E0),
-        borderRadius: BorderRadius.circular(20),
-      ),
+      decoration: BoxDecoration(color: const Color(0xFFFFF3E0), borderRadius: BorderRadius.circular(20)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
             'Gói Khám Sức Khỏe\nTổng Quát Tại Nhà',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-              height: 1.3,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87, height: 1.3),
           ),
           const SizedBox(height: 15),
           Row(
             children: [
-              const Icon(
-                Icons.shield_outlined,
-                color: Color(0xFF2B3891),
-                size: 20,
-              ),
+              const Icon(Icons.shield_outlined, color: Color(0xFF2B3891), size: 20),
               const SizedBox(width: 8),
-              const Text(
-                '100% An toàn & Vệ sinh',
-                style: TextStyle(fontSize: 12, color: Colors.black87),
-              ),
+              const Text('100% An toàn & Vệ sinh', style: TextStyle(fontSize: 12, color: Colors.black87)),
               const Spacer(),
-              const Icon(
-                Icons.receipt_long_outlined,
-                color: Color(0xFF2B3891),
-                size: 20,
-              ),
+              const Icon(Icons.receipt_long_outlined, color: Color(0xFF2B3891), size: 20),
               const SizedBox(width: 8),
-              const Text(
-                'Nhận kết quả Online',
-                style: TextStyle(fontSize: 12, color: Colors.black87),
-              ),
+              const Text('Nhận kết quả Online', style: TextStyle(fontSize: 12, color: Colors.black87)),
             ],
           ),
           const SizedBox(height: 15),
@@ -808,18 +574,10 @@ class PatientHomeScreen extends StatelessWidget {
               onPressed: () {},
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1F2970),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 elevation: 0,
               ),
-              child: const Text(
-                'Xem Tất Cả Gói Khám',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              child: const Text('Xem Tất Cả Gói Khám', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             ),
           ),
         ],
@@ -832,14 +590,8 @@ class PatientHomeScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Column(
         children: [
-          _buildArticleItem(
-            'Bí quyết duy trì trái tim khỏe mạnh cho mọi lứa tuổi',
-            '12 Thg 6, 2024',
-          ),
-          _buildArticleItem(
-            'Những siêu thực phẩm nên thêm vào bữa ăn gia đình',
-            '10 Thg 6, 2024',
-          ),
+          _buildArticleItem('Bí quyết duy trì trái tim khỏe mạnh cho mọi lứa tuổi', '12 Thg 6, 2024'),
+          _buildArticleItem('Những siêu thực phẩm nên thêm vào bữa ăn gia đình', '10 Thg 6, 2024'),
         ],
       ),
     );
@@ -852,12 +604,8 @@ class PatientHomeScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 100,
-            height: 70,
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(10),
-            ),
+            width: 100, height: 70,
+            decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(10)),
             child: const Icon(Icons.image, color: Colors.grey),
           ),
           const SizedBox(width: 15),
@@ -867,20 +615,12 @@ class PatientHomeScreen extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
-                    color: Colors.black87,
-                    height: 1.3,
-                  ),
+                  style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: Colors.black87, height: 1.3),
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 6),
-                Text(
-                  date,
-                  style: const TextStyle(color: Colors.grey, fontSize: 11),
-                ),
+                Text(date, style: const TextStyle(color: Colors.grey, fontSize: 11)),
               ],
             ),
           ),

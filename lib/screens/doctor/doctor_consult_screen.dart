@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../theme/app_colors.dart';
 import '../patient/consult_chat_screen.dart';
+import '../../services/database_service.dart';
 
 class DoctorConsultScreen extends StatelessWidget {
   const DoctorConsultScreen({super.key});
@@ -21,6 +23,7 @@ class DoctorConsultScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
+          // Thanh tìm kiếm
           Container(
             padding: const EdgeInsets.all(16),
             color: Colors.white,
@@ -39,19 +42,72 @@ class DoctorConsultScreen extends StatelessWidget {
               ),
             ),
           ),
+
+          // Danh sách chat lấy từ Firebase
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                const Text('Đang chờ tư vấn (2)', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy)),
-                const SizedBox(height: 12),
-                _buildChatItem(context, 'Lê Văn C', 'Chào bác sĩ, tôi bị đau đầu liên tục từ sáng...', '10:02', true),
-                _buildChatItem(context, 'Trần Thị B', 'Bác sĩ xem giúp tôi kết quả xét nghiệm này với ạ.', '09:45', true),
-                const SizedBox(height: 20),
-                const Text('Gần đây', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy)),
-                const SizedBox(height: 12),
-                _buildChatItem(context, 'Nguyễn Văn A', 'Cảm ơn bác sĩ nhiều ạ.', 'Hôm qua', false),
-              ],
+            child: StreamBuilder<QuerySnapshot>(
+              stream: DatabaseService().getDoctorChats('active'),
+              builder: (context, snapshot) {
+                // Hiển thị lỗi rõ ràng nếu Firebase bị lỗi
+                if (snapshot.hasError) {
+                  return Center(child: Text('Lỗi Firebase: ${snapshot.error}', style: const TextStyle(color: Colors.red)));
+                }
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator(color: AppColors.navy));
+                }
+
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Center(
+                    child: Text('Chưa có tin nhắn nào từ bệnh nhân.', style: TextStyle(color: Colors.grey)),
+                  );
+                }
+
+                // TỰ SẮP XẾP BẰNG DART (Tin nhắn mới nhất lên đầu)
+                final chats = snapshot.data!.docs.toList();
+                chats.sort((a, b) {
+                  final dataA = a.data() as Map<String, dynamic>;
+                  final dataB = b.data() as Map<String, dynamic>;
+                  final timeA = dataA['lastMessageTime'] as Timestamp?;
+                  final timeB = dataB['lastMessageTime'] as Timestamp?;
+                  if (timeA == null || timeB == null) return 0;
+                  return timeB.compareTo(timeA);
+                });
+
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: chats.length,
+                  itemBuilder: (context, index) {
+                    final chat = chats[index];
+                    final data = chat.data() as Map<String, dynamic>;
+                    final chatId = chat.id;
+                    final patientId = data['patientId'];
+                    final lastMessage = data['lastMessage'] ?? 'Chưa có tin nhắn';
+                    final lastMessageSenderId = data['lastMessageSenderId'] ?? '';
+                    final isRead = data['isRead'] ?? true;
+                    final bool isUnreadMessage = (lastMessageSenderId != DatabaseService().currentUid) && (isRead == false);
+
+                    return FutureBuilder<DocumentSnapshot>(
+                      future: FirebaseFirestore.instance.collection('users').doc(patientId).get(),
+                      builder: (context, userSnap) {
+                        String patientName = 'Bệnh nhân';
+                        if (userSnap.hasData && userSnap.data!.exists) {
+                          patientName = userSnap.data!['fullName'] ?? 'Bệnh nhân';
+                        }
+
+                        return _buildChatItem(
+                          context: context,
+                          chatId: chatId,
+                          name: patientName,
+                          lastMessage: lastMessage,
+                          time: 'Gần đây',
+                          isUnread: isUnreadMessage,
+                        );
+                      },
+                    );
+                  },
+                );
+              },
             ),
           ),
         ],
@@ -59,7 +115,14 @@ class DoctorConsultScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildChatItem(BuildContext context, String name, String lastMessage, String time, bool isUnread) {
+  Widget _buildChatItem({
+    required BuildContext context,
+    required String chatId,
+    required String name,
+    required String lastMessage,
+    required String time,
+    required bool isUnread
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       padding: const EdgeInsets.all(12),
@@ -72,10 +135,10 @@ class DoctorConsultScreen extends StatelessWidget {
         contentPadding: EdgeInsets.zero,
         leading: Stack(
           children: [
-            CircleAvatar(
+            const CircleAvatar(
               radius: 28,
               backgroundColor: AppColors.surfaceMuted,
-              child: const Icon(Icons.person, color: AppColors.navy, size: 30),
+              child: Icon(Icons.person, color: AppColors.navy, size: 30),
             ),
             if (isUnread)
               Positioned(
@@ -105,7 +168,11 @@ class DoctorConsultScreen extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ConsultChatScreen(doctorName: name, specialty: 'Bệnh nhân'),
+              builder: (context) => ConsultChatScreen(
+                chatId: chatId,
+                doctorName: name,
+                specialty: 'Bệnh nhân',
+              ),
             ),
           );
         },

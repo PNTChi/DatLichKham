@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dat_lich_kham_app/screens/doctor/doctor_appointment_screen.dart';
 import 'package:dat_lich_kham_app/screens/doctor/doctor_emr_screen.dart';
 import 'package:dat_lich_kham_app/screens/doctor/doctor_consult_screen.dart';
@@ -6,6 +8,7 @@ import 'package:dat_lich_kham_app/screens/doctor/doctor_prescription_screen.dart
 import 'package:dat_lich_kham_app/screens/doctor/doctor_settings_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/auto_scroll_appointment.dart';
+import 'package:dat_lich_kham_app/screens/doctor/doctor_stats_screen.dart';
 
 class DoctorHomeScreen extends StatefulWidget {
   const DoctorHomeScreen({super.key});
@@ -15,11 +18,35 @@ class DoctorHomeScreen extends StatefulWidget {
 }
 
 class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
+  // Biến lưu thông tin bác sĩ đăng nhập
+  String _doctorName = 'Đang tải...';
+  String _doctorSpecialty = 'Đang tải...';
+
   final List<Map<String, String>> _upcomingAppointments = [
     {'title': 'Khám Tổng quát - Nguyễn Văn A', 'time': '08:30 - 09:00', 'subtitle': 'Phòng khám ABC, HCM'},
     {'title': 'Tư vấn Online - Lê Thị B', 'time': '09:15 - 09:45', 'subtitle': 'Nhắn tin'},
     {'title': 'Đọc kết quả X-Quang - Trần C', 'time': '10:00 - 10:30', 'subtitle': 'Phòng chẩn đoán'},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchDoctorProfile(); // Gọi hàm tải dữ liệu khi mở màn hình
+  }
+
+  // Hàm lấy thông tin bác sĩ từ Firebase
+  Future<void> _fetchDoctorProfile() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null) {
+      final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      if (doc.exists && mounted) {
+        setState(() {
+          _doctorName = doc.data()?['fullName'] ?? 'Bác sĩ ẩn danh';
+          _doctorSpecialty = doc.data()?['specialty'] ?? 'Đa khoa';
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +99,8 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
                 const SizedBox(height: 10),
                 const Text('Xin chào,', style: TextStyle(color: Colors.blueAccent, fontSize: 16)),
                 const SizedBox(height: 5),
-                const Text('BS. Trần Hoàng Nam', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87)),
+                // HIỂN THỊ TÊN BÁC SĨ THẬT Ở ĐÂY
+                Text(_doctorName, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87)),
                 const SizedBox(height: 20),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -122,7 +150,7 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
                   children: [
                     _buildGridAction(context, Icons.calendar_month, 'Lịch khám', 'Quản lý lịch hẹn', const DoctorAppointmentScreen()),
                     _buildGridAction(context, Icons.assignment_ind, 'Bệnh án', 'Hồ sơ y tế', const DoctorEmrScreen()),
-                    _buildGridAction(context, Icons.chat_bubble_outline, 'Tư vấn', 'Trực tuyến', const DoctorConsultScreen()), // <-- Đã đổi icon
+                    _buildGridAction(context, Icons.chat_bubble_outline, 'Tư vấn', 'Trực tuyến', const DoctorConsultScreen()),
                     _buildGridAction(context, Icons.medication, 'Kê đơn', 'Đơn thuốc điện tử', const DoctorPrescriptionScreen()),
                   ],
                 ),
@@ -246,10 +274,12 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
                 const SizedBox(width: 15),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text('BS. Hoàng Nam', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 5),
-                    Text('Chuyên khoa Nội', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                  children: [
+                    // HIỂN THỊ TÊN BÁC SĨ THẬT TRONG MENU
+                    Text(_doctorName, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 5),
+                    // HIỂN THỊ CHUYÊN KHOA THẬT
+                    Text('Chuyên khoa $_doctorSpecialty', style: const TextStyle(color: Colors.white70, fontSize: 13)),
                   ],
                 ),
               ],
@@ -260,7 +290,12 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
               padding: const EdgeInsets.only(top: 20),
               children: [
                 ListTile(leading: const Icon(Icons.history, color: Colors.blue), title: const Text('Lịch sử ca khám', style: TextStyle(fontWeight: FontWeight.w500)), onTap: () {}),
-                ListTile(leading: const Icon(Icons.bar_chart, color: Colors.blueAccent), title: const Text('Thống kê chuyên môn', style: TextStyle(fontWeight: FontWeight.w500)), onTap: () {}),
+                ListTile(leading: const Icon(Icons.bar_chart, color: Colors.blueAccent), title: const Text('Thống kê chuyên môn', style: TextStyle(fontWeight: FontWeight.w500)),
+                  onTap: () {
+                  Navigator.pop(context); // Đóng menu drawer
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const DoctorStatsScreen()));
+                },
+                ),
               ],
             ),
           ),

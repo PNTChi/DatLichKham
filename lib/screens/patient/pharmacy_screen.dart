@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dat_lich_kham_app/theme/app_colors.dart';
 import 'package:dat_lich_kham_app/screens/patient/medicine_detail_screen.dart';
 import 'package:dat_lich_kham_app/screens/patient/patient_home_screen.dart';
+import 'package:dat_lich_kham_app/screens/patient/cart_screen.dart';
 
 /// Nhà thuốc — danh mục & sản phẩm.
 class PharmacyScreen extends StatefulWidget {
@@ -15,12 +17,17 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
   int _chip = 0;
   final _chips = ['Tất cả', 'Vitamin', 'Cảm cúm', 'Tiêu hóa', 'Da liễu'];
 
-  static const _items = [
-    _Med('Paracetamol 500mg', 'Hộp 10 vỉ', 35000),
-    _Med('Vitamin C 1000mg', 'Lọ 60 viên', 185000),
-    _Med('Oresol bù nước', 'Gói hòa tan', 12000),
-    _Med('Thuốc ho thảo dược', 'Chai 100ml', 89000),
-  ];
+  // Hàm lấy stream dữ liệu dựa trên danh mục đang chọn
+  Stream<QuerySnapshot> _getMedicinesStream() {
+    if (_chip == 0) {
+      return FirebaseFirestore.instance.collection('medicines').snapshots();
+    } else {
+      return FirebaseFirestore.instance
+          .collection('medicines')
+          .where('category', isEqualTo: _chips[_chip])
+          .snapshots();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +61,13 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
         ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              ScaffoldMessenger.of(context).clearSnackBars();
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const CartScreen())
+              );
+            },
             icon: const Icon(
               Icons.shopping_bag_outlined,
               color: Colors.black87,
@@ -123,25 +136,63 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
             ),
           ),
           const SizedBox(height: 10),
+
+          // PHẦN HIỂN THỊ DỮ LIỆU TỪ FIREBASE
           Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-              itemCount: _items.length,
-              separatorBuilder: (_, index) => const SizedBox(height: 12),
-              itemBuilder: (context, i) {
-                final m = _items[i];
-                return _MedCard(
-                  med: m,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => MedicineDetailScreen(
-                          name: m.name,
-                          subtitle: m.subtitle,
-                          unitPriceVnd: m.priceVnd,
-                        ),
-                      ),
+            child: StreamBuilder<QuerySnapshot>(
+              stream: _getMedicinesStream(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator(color: AppColors.navy));
+                }
+
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.medication_outlined, size: 60, color: Colors.grey[300]),
+                        const SizedBox(height: 16),
+                        Text('Không tìm thấy thuốc trong mục này', style: TextStyle(color: Colors.grey[500])),
+                      ],
+                    ),
+                  );
+                }
+
+                final docs = snapshot.data!.docs;
+
+                return ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+                  itemCount: docs.length,
+                  separatorBuilder: (_, index) => const SizedBox(height: 12),
+                  itemBuilder: (context, i) {
+                    final data = docs[i].data() as Map<String, dynamic>;
+
+                    // Trích xuất dữ liệu từ Firebase
+                    final String name = data['name'] ?? 'Tên thuốc';
+                    final String subtitle = data['subtitle'] ?? '';
+                    final int price = data['price'] ?? 0;
+
+                    // Lấy mô tả từ Firebase (nếu không có sẽ hiển thị dòng cảnh báo)
+                    final String desc = data['description'] ?? 'Sản phẩm chưa có mô tả chi tiết.';
+
+                    return _MedCard(
+                      name: name,
+                      subtitle: subtitle,
+                      priceVnd: price,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MedicineDetailScreen(
+                              name: name,
+                              subtitle: subtitle,
+                              unitPriceVnd: price,
+                              description: desc, // Truyền mô tả sang màn hình chi tiết
+                            ),
+                          ),
+                        );
+                      },
                     );
                   },
                 );
@@ -154,18 +205,18 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
   }
 }
 
-class _Med {
+// Widget Card hiển thị từng loại thuốc
+class _MedCard extends StatelessWidget {
+  const _MedCard({
+    required this.name,
+    required this.subtitle,
+    required this.priceVnd,
+    required this.onTap
+  });
+
   final String name;
   final String subtitle;
   final int priceVnd;
-
-  const _Med(this.name, this.subtitle, this.priceVnd);
-}
-
-class _MedCard extends StatelessWidget {
-  const _MedCard({required this.med, required this.onTap});
-
-  final _Med med;
   final VoidCallback onTap;
 
   @override
@@ -187,7 +238,7 @@ class _MedCard extends StatelessWidget {
                   color: AppColors.surfaceMuted,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.medication_liquid,
                   color: AppColors.navy,
                   size: 32,
@@ -199,7 +250,7 @@ class _MedCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      med.name,
+                      name,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
@@ -208,12 +259,12 @@ class _MedCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      med.subtitle,
+                      subtitle,
                       style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '${_formatVnd(med.priceVnd)}đ',
+                      '${_formatVnd(priceVnd)}đ',
                       style: const TextStyle(
                         color: AppColors.accent,
                         fontWeight: FontWeight.bold,

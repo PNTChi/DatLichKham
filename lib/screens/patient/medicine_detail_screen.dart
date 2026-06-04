@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dat_lich_kham_app/theme/app_colors.dart';
-import 'package:dat_lich_kham_app/screens/patient/payment_checkout_screen.dart';
+import 'package:dat_lich_kham_app/screens/patient/cart_screen.dart';
 
 /// Chi tiết thuốc — số lượng & thanh toán.
 class MedicineDetailScreen extends StatefulWidget {
@@ -9,11 +9,13 @@ class MedicineDetailScreen extends StatefulWidget {
     required this.name,
     required this.subtitle,
     required this.unitPriceVnd,
+    this.description = 'Chưa có thông tin mô tả cho sản phẩm này.', // Thêm biến mô tả
   });
 
   final String name;
   final String subtitle;
   final int unitPriceVnd;
+  final String description; // Khai báo biến mô tả
 
   @override
   State<MedicineDetailScreen> createState() => _MedicineDetailScreenState();
@@ -100,9 +102,10 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
+
+                  // HIỂN THỊ DỮ LIỆU MÔ TẢ TỪ FIREBASE Ở ĐÂY
                   Text(
-                    'Sản phẩm được bán tại nhà thuốc liên kết Medicare, có hóa đơn '
-                    'và hướng dẫn sử dụng. Vui lòng đọc kỹ chỉ định trước khi dùng.',
+                    widget.description,
                     style: TextStyle(
                       fontSize: 14,
                       height: 1.5,
@@ -191,17 +194,27 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                       height: 50,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PaymentCheckoutScreen(
-                                title: 'Thanh toán đơn thuốc',
-                                itemName: widget.name,
-                                quantity: _qty,
-                                amountVnd: _total,
-                              ),
-                            ),
+                          // THÊM SẢN PHẨM VÀO GIỎ HÀNG
+                          CartManager().add(
+                              widget.name,
+                              widget.subtitle,
+                              widget.unitPriceVnd,
+                              _qty
                           );
+
+                          // DỌN SẠCH CÁC THÔNG BÁO CŨ (CHỐNG KẸT HÀNG CHỜ)
+                          ScaffoldMessenger.of(context).clearSnackBars();
+
+                          // HIỆN THÔNG BÁO GỌN NHẸ VÀ THOÁT TRANG CHI TIẾT
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Đã thêm vào giỏ hàng!'),
+                                backgroundColor: Colors.green,
+                                behavior: SnackBarBehavior.floating,
+                                duration: Duration(seconds: 1), // Chỉ hiện 1 giây cho nhanh gọn
+                              )
+                          );
+                          Navigator.pop(context); // Trở ra danh sách thuốc
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.navy,
@@ -212,7 +225,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                           ),
                         ),
                         child: const Text(
-                          'Thanh toán',
+                          'Thêm vào giỏ',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,

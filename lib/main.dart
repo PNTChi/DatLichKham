@@ -7,6 +7,7 @@ import 'screens/auth/login_screen.dart';
 import 'screens/patient/patient_home_screen.dart';
 import 'screens/doctor/doctor_home_screen.dart';
 import 'theme/app_colors.dart';
+import 'screens/admin/admin_home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -67,10 +68,14 @@ class AuthGate extends StatelessWidget {
 
             if (roleSnapshot.hasData && roleSnapshot.data!.exists) {
               String role = roleSnapshot.data!['role'] ?? 'patient';
-              if (role == 'doctor') {
+
+              if (role == 'admin') {
+                return const AdminHomeScreen();
+              } else if (role == 'doctor') {
                 return const DoctorHomeScreen();
               }
             }
+            // Nếu là patient hoặc không xác định, vẫn về PatientHomeScreen
             return const PatientHomeScreen();
           },
         );
