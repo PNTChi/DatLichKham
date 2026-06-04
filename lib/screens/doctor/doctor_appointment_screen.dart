@@ -5,7 +5,10 @@ import '../../services/database_service.dart';
 import 'doctor_emr_screen.dart';
 
 class DoctorAppointmentScreen extends StatefulWidget {
-  const DoctorAppointmentScreen({super.key});
+  final int initialTab; // Thêm biến nhận giá trị Tab ban đầu
+
+  // Khởi tạo mặc định initialTab = 0 (Sắp tới) nếu không truyền gì vào
+  const DoctorAppointmentScreen({super.key, this.initialTab = 0});
 
   @override
   State<DoctorAppointmentScreen> createState() => _DoctorAppointmentScreenState();
@@ -13,6 +16,13 @@ class DoctorAppointmentScreen extends StatefulWidget {
 
 class _DoctorAppointmentScreenState extends State<DoctorAppointmentScreen> {
   int _selectedTabIndex = 0; // 0: Sắp tới, 1: Hoàn thành, 2: Đã huỷ
+
+  @override
+  void initState() {
+    super.initState();
+    // Gán tab đang chọn bằng với tab được truyền từ màn hình trước
+    _selectedTabIndex = widget.initialTab;
+  }
 
   @override
   Widget build(BuildContext context) {

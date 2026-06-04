@@ -52,14 +52,13 @@ class DatabaseService {
   }
 
   // =====================================================================
-  // CÁC HÀM TẠO DỮ LIỆU
+  // CÁC HÀM TẠO DỮ LIỆU MẪU
   // =====================================================================
 
-  // 6. HÀM TẠO DỮ LIỆU CÁC COLLECTION KHÁC (THUỐC, XÉT NGHIỆM, BỆNH VIỆN)
   Future<void> seedHugeMockData() async {
     final WriteBatch batch = _db.batch();
 
-    // TẠO 10 LOẠI THUỐC (ĐÃ THÊM MÔ TẢ)
+    // TẠO 10 LOẠI THUỐC
     final List<Map<String, dynamic>> medicines = [
       {'id': 'med_1', 'name': 'Paracetamol 500mg', 'category': 'Cảm cúm', 'subtitle': 'Hộp 10 vỉ', 'price': 35000, 'description': 'Giúp giảm đau, hạ sốt nhanh chóng.'},
       {'id': 'med_2', 'name': 'Vitamin C 1000mg', 'category': 'Vitamin', 'subtitle': 'Lọ 60 viên', 'price': 185000, 'description': 'Bổ sung Vitamin C hàm lượng cao.'},
@@ -107,14 +106,12 @@ class DatabaseService {
     await batch.commit();
   }
 
-  // 7. TẠO 10 BÁC SĨ (CÓ MẬT KHẨU 123456)
   Future<void> createRealDoctors() async {
     FirebaseApp secondaryApp = await Firebase.initializeApp(
       name: 'SecondaryApp',
       options: Firebase.app().options,
     );
     FirebaseAuth secondaryAuth = FirebaseAuth.instanceFor(app: secondaryApp);
-
     final WriteBatch batch = _db.batch();
 
     final List<Map<String, dynamic>> doctors = [
@@ -136,7 +133,6 @@ class DatabaseService {
           email: doc['email'],
           password: '123456',
         );
-
         String newUid = cred.user!.uid;
 
         batch.set(_db.collection('users').doc(newUid), {
@@ -167,7 +163,7 @@ class DatabaseService {
       'doctorName': doctorName,
       'diagnosis': diagnosis,
       'note': note,
-      'createdAt': FieldValue.serverTimestamp(), // Tự động lấy giờ hệ thống
+      'createdAt': FieldValue.serverTimestamp(),
     });
   }
 
@@ -181,13 +177,10 @@ class DatabaseService {
   // =====================================================================
   // CÁC HÀM ADMIN QUẢN TRỊ (CRUD)
   // =====================================================================
-
-  // LẤY TẤT CẢ USER
   Stream<QuerySnapshot> getAllUsers() {
     return _db.collection('users').snapshots();
   }
 
-  // UPDATE ROLE (Thăng cấp/Hạ cấp)
   Future<void> updateUserRole(String uid, String newRole) async {
     try {
       await _db.collection('users').doc(uid).update({'role': newRole});
@@ -196,7 +189,6 @@ class DatabaseService {
     }
   }
 
-  // UPDATE THÔNG TIN (Tên, SĐT,...)
   Future<void> updateUserData(String uid, Map<String, dynamic> data) async {
     try {
       await _db.collection('users').doc(uid).update(data);
@@ -205,7 +197,6 @@ class DatabaseService {
     }
   }
 
-  // XÓA TÀI KHOẢN
   Future<void> deleteUser(String uid) async {
     try {
       await _db.collection('users').doc(uid).delete();
@@ -217,17 +208,13 @@ class DatabaseService {
   // =====================================================================
   // TÍNH NĂNG CHAT TƯ VẤN
   // =====================================================================
-
-  // LẤY DANH SÁCH CHAT CỦA BÁC SĨ
   Stream<QuerySnapshot> getDoctorChats(String status) {
     return _db.collection('chats')
         .where('doctorId', isEqualTo: currentUid)
         .where('status', isEqualTo: status)
-    // .orderBy('lastMessageTime', descending: true) // Nhớ giữ nguyên việc comment dòng này
         .snapshots();
   }
 
-  // TẠO HOẶC LẤY PHÒNG CHAT
   Future<String> createOrGetChat(String doctorId, String doctorName) async {
     final chatQuery = await _db.collection('chats')
         .where('patientId', isEqualTo: currentUid)
@@ -244,14 +231,13 @@ class DatabaseService {
         'status': 'active',
         'lastMessage': 'Bắt đầu cuộc trò chuyện',
         'lastMessageTime': FieldValue.serverTimestamp(),
-        'lastMessageSenderId': currentUid, // Lưu lại người tạo là người gửi cuối
-        'isRead': false, // Đánh dấu là chưa đọc
+        'lastMessageSenderId': currentUid,
+        'isRead': false,
       });
       return newChat.id;
     }
   }
 
-  // GỬI TIN NHẮN
   Future<void> sendMessage(String chatId, String message) async {
     await _db.collection('chats').doc(chatId).collection('messages').add({
       'senderId': currentUid,
@@ -259,19 +245,104 @@ class DatabaseService {
       'timestamp': FieldValue.serverTimestamp(),
     });
 
-    // Cập nhật lại thông tin phòng chat
     await _db.collection('chats').doc(chatId).update({
       'lastMessage': message,
       'lastMessageTime': FieldValue.serverTimestamp(),
-      'lastMessageSenderId': currentUid, // Lưu ID của người vừa gửi
-      'isRead': false, // Có tin nhắn mới -> Đổi thành chưa đọc
+      'lastMessageSenderId': currentUid,
+      'isRead': false,
     });
   }
 
-  // ĐÁNH DẤU LÀ ĐÃ ĐỌC (HÀM MỚI)
   Future<void> markChatAsRead(String chatId) async {
     await _db.collection('chats').doc(chatId).update({
-      'isRead': true, // Cập nhật thành đã đọc
+      'isRead': true,
     });
+  }
+
+  // ===================================================================
+  // QUẢN LÝ ĐƠN THUỐC
+  // ===================================================================
+  Future<void> addPrescription(String patientId, String patientName, String doctorName, List<Map<String, dynamic>> medicines) async {
+    await _db.collection('prescriptions').add({
+      'patientId': patientId,
+      'patientName': patientName,
+      'doctorId': currentUid,
+      'doctorName': doctorName,
+      'medicines': medicines,
+      'status': 'Chưa mua',
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Stream<QuerySnapshot> getPatientPrescriptions() {
+    if (currentUid == null) return const Stream.empty();
+    return _db.collection('prescriptions')
+        .where('patientId', isEqualTo: currentUid)
+        .snapshots();
+  }
+
+  // =====================================================================
+  // HỒ SƠ SỨC KHỎE BỆNH NHÂN
+  // =====================================================================
+
+  // 1. Dùng để Bệnh nhân tự lưu/cập nhật form hồ sơ sức khỏe
+  Future<void> updatePatientHealthProfile({
+    required String gender,
+    required int birthYear,
+    required String bloodType, // Thêm Nhóm máu
+    required String allergies,
+    required String height,
+    required String weight,
+    required String heartRate,
+    required String bloodPressure,
+    required List<String> backgroundDiseases,
+  }) async {
+    if (currentUid == null) return;
+
+    await _db.collection('users').doc(currentUid).update({
+      'gender': gender,
+      'birthYear': birthYear,
+      'bloodType': bloodType,
+      'allergies': allergies,
+      'height': height,
+      'weight': weight,
+      'heartRate': heartRate,
+      'bloodPressure': bloodPressure,
+      'backgroundDiseases': backgroundDiseases,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  // 2. Dùng để quét và FIX LỖI các tài khoản bệnh nhân cũ tạo trước đó chưa có dữ liệu
+  Future<void> migrateOldPatientsData() async {
+    final snapshot = await _db.collection('users').where('role', isEqualTo: 'patient').get();
+    final WriteBatch batch = _db.batch();
+
+    for (var doc in snapshot.docs) {
+      final data = doc.data();
+      Map<String, dynamic> updates = {};
+
+      // Kiểm tra và điền bù các field còn thiếu
+      if (!data.containsKey('gender')) updates['gender'] = 'Chưa rõ';
+      if (!data.containsKey('birthYear')) updates['birthYear'] = 2000;
+      if (!data.containsKey('allergies')) updates['allergies'] = 'Không có';
+      if (!data.containsKey('heartRate')) updates['heartRate'] = '75';
+      if (!data.containsKey('bloodPressure')) updates['bloodPressure'] = '120/80';
+      if (!data.containsKey('height')) updates['height'] = '165';
+      if (!data.containsKey('weight')) updates['weight'] = '60';
+      if (!data.containsKey('backgroundDiseases')) updates['backgroundDiseases'] = [];
+
+      // Các field mới cập nhật thêm
+      if (!data.containsKey('bloodType')) updates['bloodType'] = 'Chưa rõ';
+      if (!data.containsKey('phoneNumber')) updates['phoneNumber'] = '';
+      if (!data.containsKey('address')) updates['address'] = '';
+      if (!data.containsKey('avatarUrl')) updates['avatarUrl'] = '';
+
+      // Chỉ gọi update nếu có trường cần thêm
+      if (updates.isNotEmpty) {
+        batch.update(doc.reference, updates);
+      }
+    }
+    await batch.commit();
   }
 }

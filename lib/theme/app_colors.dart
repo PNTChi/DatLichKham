@@ -8,4 +8,6 @@ abstract final class AppColors {
   static const Color accent = Color(0xFF00C2FF);
   static const Color surfaceMuted = Color(0xFFE6F0FF);
   static const Color bannerCream = Color(0xFFFFF3E0);
+  static const Color background = Color(0xFFEEF1F6);
+  static const Color border = Color(0xFFDCDFE4);
 }

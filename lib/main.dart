@@ -8,12 +8,14 @@ import 'screens/patient/patient_home_screen.dart';
 import 'screens/doctor/doctor_home_screen.dart';
 import 'theme/app_colors.dart';
 import 'screens/admin/admin_home_screen.dart';
+import 'package:dat_lich_kham_app/services/database_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await DatabaseService().migrateOldPatientsData();
   runApp(const DatLichKhamApp());
 }
 

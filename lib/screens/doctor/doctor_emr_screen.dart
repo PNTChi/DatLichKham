@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../theme/app_colors.dart';
 import '../../services/database_service.dart';
+import 'doctor_prescription_screen.dart';
 
 class DoctorEmrScreen extends StatelessWidget {
   final String patientName;
@@ -14,11 +15,11 @@ class DoctorEmrScreen extends StatelessWidget {
     this.patientId = '',
   });
 
-  // HÀM HIỂN THỊ FORM GHI BỆNH ÁN (ĐÃ CÓ LOGIC LƯU LÊN FIREBASE)
+  // HÀM HIỂN THỊ FORM GHI BỆNH ÁN
   void _showAddEmrBottomSheet(BuildContext context) {
     final diagnosisController = TextEditingController();
     final noteController = TextEditingController();
-    bool isSaving = false; // Trạng thái đang lưu
+    bool isSaving = false;
 
     showModalBottomSheet(
       context: context,
@@ -80,10 +81,9 @@ class DoctorEmrScreen extends StatelessWidget {
                           return;
                         }
 
-                        setModalState(() => isSaving = true); // Bật loading
+                        setModalState(() => isSaving = true);
 
                         try {
-                          // 1. Lấy tên Bác sĩ hiện tại
                           final uid = FirebaseAuth.instance.currentUser?.uid;
                           String doctorName = 'Bác sĩ';
                           if (uid != null) {
@@ -91,7 +91,6 @@ class DoctorEmrScreen extends StatelessWidget {
                             doctorName = userDoc.data()?['fullName'] ?? 'Bác sĩ';
                           }
 
-                          // 2. Lưu lên Firebase
                           await DatabaseService().addMedicalRecord(
                             patientId,
                             patientName,
@@ -101,7 +100,7 @@ class DoctorEmrScreen extends StatelessWidget {
                           );
 
                           if (!context.mounted) return;
-                          Navigator.pop(context); // Đóng bottom sheet
+                          Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Đã lưu bệnh án thành công!'), backgroundColor: Colors.green),
                           );
@@ -130,7 +129,7 @@ class DoctorEmrScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 2,
       child: Scaffold(
         backgroundColor: const Color(0xFFF7F8FC),
         appBar: AppBar(
@@ -157,29 +156,79 @@ class DoctorEmrScreen extends StatelessWidget {
             tabs: [
               Tab(text: 'Tổng quan'),
               Tab(text: 'Lịch sử khám'),
-              Tab(text: 'Cận lâm sàng'),
             ],
           ),
         ),
-        body: Column(
-          children: [
-            _buildPatientHeader(),
-            Expanded(
-              child: TabBarView(
+
+        body: StreamBuilder<DocumentSnapshot>(
+            stream: FirebaseFirestore.instance.collection('users').doc(patientId.isEmpty ? 'dummy_id' : patientId).snapshots(),
+            builder: (context, snapshot) {
+              String name = patientName;
+              String gender = 'Chưa rõ';
+              String ageStr = '--';
+              String allergies = 'Chưa ghi nhận';
+              String heartRate = '--';
+              String bloodPressure = '--/--';
+              String height = '--';
+              String weight = '--';
+              List<dynamic> backgroundDiseases = [];
+
+              if (snapshot.hasData && snapshot.data!.exists) {
+                final data = snapshot.data!.data() as Map<String, dynamic>;
+                name = data['fullName'] ?? patientName;
+                gender = data['gender'] ?? 'Chưa rõ';
+
+                if (data['birthYear'] != null) {
+                  final currentYear = DateTime.now().year;
+                  final birthYear = int.tryParse(data['birthYear'].toString()) ?? currentYear;
+                  ageStr = (currentYear - birthYear).toString();
+                }
+
+                allergies = data['allergies'] ?? 'Không có';
+                heartRate = data['heartRate']?.toString() ?? '--';
+                bloodPressure = data['bloodPressure']?.toString() ?? '--/--';
+                height = data['height']?.toString() ?? '--';
+                weight = data['weight']?.toString() ?? '--';
+                backgroundDiseases = data['backgroundDiseases'] ?? [];
+              }
+
+              return Column(
                 children: [
-                  _buildOverviewTab(),
-                  _buildHistoryTab(), // TAB LỊCH SỬ ĐƯỢC LOAD TỪ FIREBASE
-                  _buildLabResultsTab(),
+                  _buildPatientHeader(name, patientId, gender, ageStr, allergies),
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        _buildOverviewTab(heartRate, bloodPressure, height, weight, backgroundDiseases),
+                        _buildHistoryTab(),
+                      ],
+                    ),
+                  ),
                 ],
+              );
+            }
+        ),
+
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DoctorPrescriptionScreen(
+                  patientId: patientId,
+                  patientName: patientName,
+                ),
               ),
-            ),
-          ],
+            );
+          },
+          backgroundColor: AppColors.navy,
+          icon: const Icon(Icons.medication, color: Colors.white),
+          label: const Text('Kê đơn thuốc', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         ),
       ),
     );
   }
 
-  Widget _buildPatientHeader() {
+  Widget _buildPatientHeader(String name, String id, String gender, String age, String allergies) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 5, offset: const Offset(0, 3))]),
@@ -191,14 +240,14 @@ class DoctorEmrScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(patientName, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.navy)),
+                Text(name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.navy)),
                 const SizedBox(height: 5),
-                Text('Mã BN: ${patientId.isNotEmpty ? patientId.substring(0, 6).toUpperCase() : 'BN-102938'} • Nam, 21 tuổi', style: TextStyle(fontSize: 14, color: Colors.grey[700])),
+                Text('Mã BN: ${id.isNotEmpty ? id.substring(0, 6).toUpperCase() : 'BN-102938'} • $gender, $age tuổi', style: TextStyle(fontSize: 14, color: Colors.grey[700])),
                 const SizedBox(height: 5),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-                  child: const Text('Dị ứng: Penicillin, Hải sản', style: TextStyle(color: Colors.redAccent, fontSize: 12, fontWeight: FontWeight.bold)),
+                  child: Text('Dị ứng: $allergies', style: const TextStyle(color: Colors.redAccent, fontSize: 12, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -208,7 +257,7 @@ class DoctorEmrScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildOverviewTab() {
+  Widget _buildOverviewTab(String hr, String bp, String h, String w, List<dynamic> diseases) {
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
@@ -216,17 +265,17 @@ class DoctorEmrScreen extends StatelessWidget {
         const SizedBox(height: 15),
         Row(
           children: [
-            _buildVitalCard('Nhịp tim', '85', 'bpm', Icons.favorite, Colors.redAccent),
+            _buildVitalCard('Nhịp tim', hr, 'bpm', Icons.favorite, Colors.redAccent),
             const SizedBox(width: 15),
-            _buildVitalCard('Huyết áp', '120/80', 'mmHg', Icons.bloodtype, Colors.blue),
+            _buildVitalCard('Huyết áp', bp, 'mmHg', Icons.water_drop, Colors.blue),
           ],
         ),
         const SizedBox(height: 15),
         Row(
           children: [
-            _buildVitalCard('Chiều cao', '170', 'cm', Icons.height, Colors.green),
+            _buildVitalCard('Chiều cao', h, 'cm', Icons.height, Colors.green),
             const SizedBox(width: 15),
-            _buildVitalCard('Cân nặng', '68', 'kg', Icons.monitor_weight, Colors.orange),
+            _buildVitalCard('Cân nặng', w, 'kg', Icons.monitor_weight, Colors.orange),
           ],
         ),
         const SizedBox(height: 25),
@@ -235,7 +284,10 @@ class DoctorEmrScreen extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(15),
           decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.withValues(alpha: 0.2))),
-          child: const Text('• Viêm dạ dày mãn tính\n• Rối loạn tiền đình', style: TextStyle(height: 1.5, fontSize: 14)),
+          child: Text(
+              diseases.isEmpty ? 'Chưa ghi nhận bệnh lý nền' : diseases.map((e) => '• $e').join('\n'),
+              style: const TextStyle(height: 1.5, fontSize: 14)
+          ),
         ),
       ],
     );
@@ -266,7 +318,6 @@ class DoctorEmrScreen extends StatelessWidget {
     );
   }
 
-  // TAB LỊCH SỬ ĐÃ ĐƯỢC NỐI VỚI FIREBASE
   Widget _buildHistoryTab() {
     if (patientId.isEmpty) {
       return const Center(child: Text('Không có dữ liệu bệnh nhân'));
@@ -294,7 +345,6 @@ class DoctorEmrScreen extends StatelessWidget {
 
         final docs = snapshot.data!.docs;
 
-        // Sắp xếp bệnh án mới nhất lên trên
         docs.sort((a, b) {
           final tA = (a.data() as Map<String, dynamic>)['createdAt'] as Timestamp?;
           final tB = (b.data() as Map<String, dynamic>)['createdAt'] as Timestamp?;
@@ -308,7 +358,6 @@ class DoctorEmrScreen extends StatelessWidget {
           itemBuilder: (context, index) {
             final data = docs[index].data() as Map<String, dynamic>;
 
-            // Xử lý ngày tháng
             String dateStr = 'Vừa xong';
             Timestamp? timestamp = data['createdAt'] as Timestamp?;
             if (timestamp != null) {
@@ -347,33 +396,6 @@ class DoctorEmrScreen extends StatelessWidget {
           Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.navy)),
           const SizedBox(height: 8),
           Text('Ghi chú: $note', style: TextStyle(color: Colors.grey[800], height: 1.4)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLabResultsTab() {
-    return ListView(
-      padding: const EdgeInsets.all(20),
-      children: [
-        _buildLabItem('Xét nghiệm máu tổng quát', '10/05/2026', true),
-        _buildLabItem('Nội soi dạ dày', '15/02/2026', true),
-        _buildLabItem('Chụp X-Quang phổi thẳng', 'Hôm nay', false),
-      ],
-    );
-  }
-
-  Widget _buildLabItem(String name, String date, bool isReady) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 15),
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.withValues(alpha: 0.1))),
-      child: Row(
-        children: [
-          Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: AppColors.surfaceMuted, borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.science, color: AppColors.navy)),
-          const SizedBox(width: 15),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.navy)), const SizedBox(height: 4), Text(date, style: const TextStyle(color: Colors.grey, fontSize: 12))])),
-          isReady ? const Icon(Icons.check_circle, color: Colors.green) : const Icon(Icons.pending, color: Colors.orange),
         ],
       ),
     );
