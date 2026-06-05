@@ -349,4 +349,35 @@ class DatabaseService {
     }
     await batch.commit();
   }
+
+  // ==========================================================
+  // HÀM QUẢN LÝ LỊCH LÀM VIỆC CỦA BÁC SĨ
+  // ==========================================================
+
+  // Cập nhật lịch làm việc của bác sĩ lên Firestore
+  Future<void> updateDoctorSchedule(String doctorId, Map<String, dynamic> scheduleMap) async {
+    try {
+      await _db.collection('users').doc(doctorId).update({
+        'schedule': scheduleMap,
+      });
+    } catch (e) {
+      debugPrint("Lỗi cập nhật lịch làm việc: $e");
+      rethrow;
+    }
+  }
+
+  // Tải lịch làm việc hiện tại của bác sĩ từ Firestore
+  Future<Map<String, dynamic>?> getDoctorSchedule(String doctorId) async {
+    try {
+      DocumentSnapshot doc = await _db.collection('users').doc(doctorId).get();
+      if (doc.exists && doc.data() != null) {
+        final data = doc.data() as Map<String, dynamic>;
+        return data['schedule'] as Map<String, dynamic>?;
+      }
+      return null;
+    } catch (e) {
+      debugPrint("Lỗi tải lịch làm việc: $e");
+      return null;
+    }
+  }
 }

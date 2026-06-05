@@ -23,6 +23,7 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
   // Biến lưu thông tin bác sĩ đăng nhập
   String _doctorName = 'Đang tải...';
   String _doctorSpecialty = 'Đang tải...';
+  String _currentLocation = 'Hồ Chí Minh';
 
   @override
   void initState() {
@@ -42,6 +43,75 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
         });
       }
     }
+  }
+
+  // HÀM HIỂN THỊ BẢNG CHỌN ĐỊA ĐIỂM
+  void _showLocationPicker() {
+    final TextEditingController locationCtrl = TextEditingController(text: _currentLocation);
+    final List<String> popularCities = ['Hồ Chí Minh', 'Hà Nội', 'Đà Nẵng', 'Cần Thơ', 'Hải Phòng', 'Đồng Nai'];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+            left: 20, right: 20, top: 24
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Chọn khu vực làm việc', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1B2473))),
+            const SizedBox(height: 16),
+            TextField(
+              controller: locationCtrl,
+              decoration: InputDecoration(
+                hintText: 'Nhập địa chỉ phòng khám/bệnh viện...',
+                prefixIcon: const Icon(Icons.location_on, color: Colors.redAccent),
+                filled: true,
+                fillColor: Colors.grey[100],
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: popularCities.map((city) {
+                final isSelected = _currentLocation == city;
+                return ChoiceChip(
+                  label: Text(city, style: TextStyle(color: isSelected ? Colors.white : Colors.black87)),
+                  selected: isSelected,
+                  selectedColor: const Color(0xFF1B2473),
+                  backgroundColor: Colors.grey[200],
+                  onSelected: (selected) {
+                    setState(() => _currentLocation = city);
+                    Navigator.pop(ctx);
+                  },
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1B2473), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+                onPressed: () {
+                  if (locationCtrl.text.trim().isNotEmpty) {
+                    setState(() => _currentLocation = locationCtrl.text.trim());
+                  }
+                  Navigator.pop(ctx);
+                },
+                child: const Text('Xác nhận', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 
   // ==========================================================
@@ -150,12 +220,20 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
         ),
       ),
       titleSpacing: 0,
-      title: Row(
-        children: [
-          const Text('Hồ Chí Minh', style: TextStyle(color: Colors.black87, fontSize: 16, fontWeight: FontWeight.w600)),
-          const SizedBox(width: 4),
-          Icon(Icons.arrow_drop_down, color: Colors.blue[600]),
-        ],
+      title: InkWell(
+        onTap: _showLocationPicker,
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min, // Tránh nút bị tràn ngang
+            children: [
+              Text(_currentLocation, style: const TextStyle(color: Colors.black87, fontSize: 16, fontWeight: FontWeight.w600)),
+              const SizedBox(width: 4),
+              Icon(Icons.arrow_drop_down, color: Colors.blue[600]),
+            ],
+          ),
+        ),
       ),
       actions: [
         IconButton(
