@@ -1,8 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:dat_lich_kham_app/screens/patient/doctor_list_screen.dart';
 
-class SearchDoctorScreen extends StatelessWidget {
+class SearchDoctorScreen extends StatefulWidget {
   const SearchDoctorScreen({super.key});
+
+  @override
+  State<SearchDoctorScreen> createState() => _SearchDoctorScreenState();
+}
+
+class _SearchDoctorScreenState extends State<SearchDoctorScreen> {
+  final TextEditingController _searchController = TextEditingController();
+
+  // Hàm xử lý khi người dùng nhấn Tìm kiếm
+  void _handleSearch(String query) {
+    if (query.trim().isEmpty) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        // Tạm thời truyền từ khóa tìm kiếm vào thuộc tính specialty
+        // (Lưu ý: Backend hiện đang so sánh bằng (isEqualTo) nên cần gõ chính xác như "Tim mạch", "Nhi khoa")
+        builder: (context) => DoctorListScreen(specialty: query.trim()),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose(); // Giải phóng bộ nhớ khi đóng màn hình
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,13 +64,20 @@ class SearchDoctorScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(15),
                 border: Border.all(color: Colors.grey[300]!),
               ),
-              child: const TextField(
-                autofocus: true, // Tự động bật bàn phím khi vào trang này
+              child: TextField(
+                controller: _searchController,
+                autofocus: true,
+                textInputAction: TextInputAction.search, // Hiển thị nút Kính lúp/Enter trên bàn phím
+                onSubmitted: _handleSearch, // Gọi hàm khi bấm Enter
                 decoration: InputDecoration(
                   hintText: 'Tìm bác sĩ, chuyên khoa, phòng khám',
                   border: InputBorder.none,
-                  icon: Icon(Icons.search, color: Colors.grey),
-                  hintStyle: TextStyle(fontSize: 14),
+                  icon: const Icon(Icons.search, color: Colors.grey),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.arrow_forward, color: Color(0xFF00C2FF)),
+                    onPressed: () => _handleSearch(_searchController.text),
+                  ),
+                  hintStyle: const TextStyle(fontSize: 14),
                 ),
               ),
             ),
@@ -70,68 +104,17 @@ class SearchDoctorScreen extends StatelessWidget {
               mainAxisSpacing: 15,
               crossAxisSpacing: 15,
               childAspectRatio: 0.9,
-              // Điều chỉnh độ cao của ô vuông
               children: [
-                _buildSpecialityCard(
-                  context,
-                  Icons.favorite,
-                  'Tim mạch',
-                  '340 Bác sĩ',
-                ),
-                _buildSpecialityCard(
-                  context,
-                  Icons.child_care,
-                  'Nhi khoa',
-                  '450 Bác sĩ',
-                ),
-                _buildSpecialityCard(
-                  context,
-                  Icons.medication_liquid,
-                  'Đông y',
-                  '450 Bác sĩ',
-                ),
-                _buildSpecialityCard(
-                  context,
-                  Icons.medical_services,
-                  'Đa khoa',
-                  '350 Bác sĩ',
-                ),
-                _buildSpecialityCard(
-                  context,
-                  Icons.water_drop,
-                  'Thận - Tiết niệu',
-                  '123 Bác sĩ',
-                ),
-                _buildSpecialityCard(
-                  context,
-                  Icons.psychology,
-                  'Tâm lý học',
-                  '50 Bác sĩ',
-                ),
-                _buildSpecialityCard(
-                  context,
-                  Icons.healing,
-                  'Tiêu hóa',
-                  '145 Bác sĩ',
-                ),
-                _buildSpecialityCard(
-                  context,
-                  Icons.coronavirus,
-                  'Ung bướu',
-                  '34 Bác sĩ',
-                ),
-                _buildSpecialityCard(
-                  context,
-                  Icons.content_cut,
-                  'Ngoại khoa',
-                  '54 Bác sĩ',
-                ),
-                _buildSpecialityCard(
-                  context,
-                  Icons.clean_hands,
-                  'Nha khoa',
-                  '34 Bác sĩ',
-                ),
+                _buildSpecialityCard(context, Icons.favorite, 'Tim mạch', '340 Bác sĩ'),
+                _buildSpecialityCard(context, Icons.child_care, 'Nhi khoa', '450 Bác sĩ'),
+                _buildSpecialityCard(context, Icons.medication_liquid, 'Đông y', '450 Bác sĩ'),
+                _buildSpecialityCard(context, Icons.medical_services, 'Đa khoa', '350 Bác sĩ'),
+                _buildSpecialityCard(context, Icons.water_drop, 'Thận - Tiết niệu', '123 Bác sĩ'),
+                _buildSpecialityCard(context, Icons.psychology, 'Tâm lý học', '50 Bác sĩ'),
+                _buildSpecialityCard(context, Icons.healing, 'Tiêu hóa', '145 Bác sĩ'),
+                _buildSpecialityCard(context, Icons.coronavirus, 'Ung bướu', '34 Bác sĩ'),
+                _buildSpecialityCard(context, Icons.content_cut, 'Ngoại khoa', '54 Bác sĩ'),
+                _buildSpecialityCard(context, Icons.clean_hands, 'Nha khoa', '34 Bác sĩ'),
               ],
             ),
 
@@ -153,7 +136,15 @@ class SearchDoctorScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 5),
                   InkWell(
-                    onTap: () {},
+                    onTap: () {
+                      // ĐIỀU HƯỚNG HIỂN THỊ TẤT CẢ BÁC SĨ (Không lọc theo specialty)
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const DoctorListScreen(),
+                        ),
+                      );
+                    },
                     child: const Text(
                       'Tìm kiếm thêm',
                       style: TextStyle(
@@ -175,11 +166,11 @@ class SearchDoctorScreen extends StatelessWidget {
 
   // Hàm xây dựng 1 ô chuyên khoa
   Widget _buildSpecialityCard(
-    BuildContext context,
-    IconData icon,
-    String title,
-    String subtitle,
-  ) {
+      BuildContext context,
+      IconData icon,
+      String title,
+      String subtitle,
+      ) {
     return Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(15),

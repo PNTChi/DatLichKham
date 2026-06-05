@@ -4,8 +4,102 @@ import 'package:dat_lich_kham_app/theme/app_colors.dart';
 import 'package:dat_lich_kham_app/screens/patient/patient_home_screen.dart';
 import '../../services/database_service.dart';
 
-class MyAppointmentsScreen extends StatelessWidget {
+// 1. CHUYỂN SANG STATEFULWIDGET
+class MyAppointmentsScreen extends StatefulWidget {
   const MyAppointmentsScreen({super.key});
+
+  @override
+  State<MyAppointmentsScreen> createState() => _MyAppointmentsScreenState();
+}
+
+class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
+
+  // 2. HÀM ĐỔI LỊCH (Đã sửa lỗi context và mounted)
+  void _showRescheduleModal(String appointmentId) {
+    DateTime selectedDate = DateTime.now().add(const Duration(days: 1));
+    TimeOfDay selectedTime = const TimeOfDay(hour: 9, minute: 0);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) {
+          return Padding(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom + 20, left: 20, right: 20, top: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Chọn lịch hẹn mới', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 20),
+
+                // Chọn ngày
+                ListTile(
+                  title: Text('Ngày: ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}'),
+                  trailing: const Icon(Icons.calendar_today),
+                  onTap: () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: selectedDate,
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(const Duration(days: 30)),
+                    );
+                    if (date != null) setModalState(() => selectedDate = date);
+                  },
+                ),
+
+                // Chọn giờ
+                ListTile(
+                  title: Text('Giờ: ${selectedTime.hour}:${selectedTime.minute.toString().padLeft(2, '0')}'),
+                  trailing: const Icon(Icons.access_time),
+                  onTap: () async {
+                    final time = await showTimePicker(context: context, initialTime: selectedTime);
+                    if (time != null) setModalState(() => selectedTime = time);
+                  },
+                ),
+
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final newDateTime = DateTime(
+                        selectedDate.year, selectedDate.month, selectedDate.day,
+                        selectedTime.hour, selectedTime.minute,
+                      );
+
+                      try {
+                        await FirebaseFirestore.instance
+                            .collection('appointments')
+                            .doc(appointmentId)
+                            .update({
+                          'appointmentTime': Timestamp.fromDate(newDateTime),
+                          'status': 'confirmed',
+                        });
+
+                        if (!context.mounted) return;
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Đổi lịch thành công!'), backgroundColor: Colors.green),
+                        );
+                      } catch (e) {
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Có lỗi xảy ra, vui lòng thử lại')),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1B2473), padding: const EdgeInsets.symmetric(vertical: 14)),
+                    child: const Text('Xác nhận đổi lịch', style: TextStyle(color: Colors.white)),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +229,6 @@ class MyAppointmentsScreen extends StatelessWidget {
                           Expanded(
                             child: OutlinedButton(
                               onPressed: () async {
-                                // LOGIC CHẶN HỦY LỊCH KHI BÁC SĨ ĐÃ DUYỆT
                                 if (status == 'confirmed') {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
@@ -146,7 +239,6 @@ class MyAppointmentsScreen extends StatelessWidget {
                                   return;
                                 }
 
-                                // HIỆN BẢNG XÁC NHẬN TRƯỚC KHI HỦY
                                 bool? confirm = await showDialog(
                                     context: context,
                                     builder: (context) => AlertDialog(
@@ -164,7 +256,6 @@ class MyAppointmentsScreen extends StatelessWidget {
                                     )
                                 );
 
-                                // NẾU CHỌN CÓ -> GỌI FIREBASE
                                 if (confirm == true) {
                                   await DatabaseService().updateAppointmentStatus(docId, 'cancelled');
                                   if (!context.mounted) return;
@@ -172,7 +263,6 @@ class MyAppointmentsScreen extends StatelessWidget {
                                 }
                               },
                               style: OutlinedButton.styleFrom(
-                                // Nếu đã xác nhận thì nút chuyển sang màu xám
                                 foregroundColor: status == 'confirmed' ? Colors.grey : Colors.redAccent,
                                 side: BorderSide(color: status == 'confirmed' ? Colors.grey.withValues(alpha: 0.3) : Colors.redAccent.withValues(alpha: 0.5)),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -188,7 +278,9 @@ class MyAppointmentsScreen extends StatelessWidget {
                                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bác sĩ đã xác nhận lịch. Bạn không thể đổi lịch lúc này!'), backgroundColor: Colors.orange,));
                                   return;
                                 }
-                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tính năng đổi lịch đang được bảo trì')));
+
+                                // 3. GỌI HÀM ĐỔI LỊCH TẠI ĐÂY
+                                _showRescheduleModal(docId);
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: status == 'confirmed' ? Colors.grey[300] : AppColors.navy,

@@ -23,6 +23,9 @@ class _DoctorStatsScreenState extends State<DoctorStatsScreen> {
   List<double> _monthlyRevenue = List.filled(6, 0.0);
   List<String> _monthLabels = ['', '', '', '', '', ''];
 
+  // CÁC BIẾN CHO BIỂU ĐỒ ĐÁNH GIÁ (PIE CHART)
+  double _p5 = 100, _p4 = 0, _p3 = 0, _p12 = 0; // Mặc định nếu chưa có đánh giá nào
+
   @override
   void initState() {
     super.initState();
@@ -38,6 +41,7 @@ class _DoctorStatsScreenState extends State<DoctorStatsScreen> {
     }
 
     try {
+      // 1. ĐỌC DỮ LIỆU LỊCH KHÁM & DOANH THU
       final snap = await FirebaseFirestore.instance
           .collection('appointments')
           .where('doctorId', isEqualTo: uid)
@@ -84,6 +88,39 @@ class _DoctorStatsScreenState extends State<DoctorStatsScreen> {
         return 'T${m.month}';
       });
 
+      // 2. ĐỌC DỮ LIỆU ĐÁNH GIÁ (REVIEWS) TỪ BỆNH NHÂN
+      final reviewSnap = await FirebaseFirestore.instance
+          .collection('reviews')
+          .where('doctorId', isEqualTo: uid)
+          .get();
+
+      int s5 = 0, s4 = 0, s3 = 0, s12 = 0;
+      double pt5 = 100, pt4 = 0, pt3 = 0, pt12 = 0; // Tỷ lệ phần trăm
+
+      if (reviewSnap.docs.isNotEmpty) {
+        for (var doc in reviewSnap.docs) {
+          double r = (doc.data()['rating'] as num?)?.toDouble() ?? 5.0;
+          if (r >= 4.5) {
+            s5++;
+          } else if (r >= 3.5) {
+            s4++;
+          } else if (r >= 2.5) {
+            s3++;
+          } else {
+            s12++;
+          }
+        }
+
+        int totalRev = s5 + s4 + s3 + s12;
+        if (totalRev > 0) {
+          pt5 = (s5 / totalRev) * 100;
+          pt4 = (s4 / totalRev) * 100;
+          pt3 = (s3 / totalRev) * 100;
+          pt12 = (s12 / totalRev) * 100;
+        }
+      }
+
+      // CẬP NHẬT GIAO DIỆN SAU KHI TÍNH TOÁN XONG
       setState(() {
         _completed = completed;
         _cancelled = cancelled;
@@ -91,6 +128,13 @@ class _DoctorStatsScreenState extends State<DoctorStatsScreen> {
         _totalRevenue = revenue;
         _monthlyRevenue = monthlyRev;
         _monthLabels = labels;
+
+        // Cập nhật state biểu đồ tròn
+        _p5 = pt5;
+        _p4 = pt4;
+        _p3 = pt3;
+        _p12 = pt12;
+
         _isLoading = false;
       });
     } catch (e) {
@@ -203,7 +247,7 @@ class _DoctorStatsScreenState extends State<DoctorStatsScreen> {
 
             const SizedBox(height: 30),
 
-            // 3. BIỂU ĐỒ TRÒN: TỶ LỆ ĐÁNH GIÁ (RATING)
+            // 3. BIỂU ĐỒ TRÒN: TỶ LỆ ĐÁNH GIÁ (RATING TỪ FIREBASE)
             const Text('Tỷ lệ Đánh giá từ Bệnh nhân', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
             const SizedBox(height: 15),
             Container(
@@ -238,13 +282,13 @@ class _DoctorStatsScreenState extends State<DoctorStatsScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildIndicator(Colors.green, '5 Sao (70%)'),
+                      _buildIndicator(Colors.green, '5 Sao (${_p5.toStringAsFixed(0)}%)'),
                       const SizedBox(height: 10),
-                      _buildIndicator(Colors.blue, '4 Sao (20%)'),
+                      _buildIndicator(Colors.blue, '4 Sao (${_p4.toStringAsFixed(0)}%)'),
                       const SizedBox(height: 10),
-                      _buildIndicator(Colors.orange, '3 Sao (8%)'),
+                      _buildIndicator(Colors.orange, '3 Sao (${_p3.toStringAsFixed(0)}%)'),
                       const SizedBox(height: 10),
-                      _buildIndicator(Colors.redAccent, '1-2 Sao (2%)'),
+                      _buildIndicator(Colors.redAccent, '1-2 Sao (${_p12.toStringAsFixed(0)}%)'),
                     ],
                   ),
                 ],
@@ -292,15 +336,16 @@ class _DoctorStatsScreenState extends State<DoctorStatsScreen> {
     );
   }
 
+  // TÍCH HỢP TỈ LỆ THẬT VÀO BIỂU ĐỒ TRÒN
   List<PieChartSectionData> showingSections() {
     return List.generate(4, (i) {
       final isTouched = i == touchedIndex;
       final radius = isTouched ? 45.0 : 35.0;
       switch (i) {
-        case 0: return PieChartSectionData(color: Colors.green, value: 70, title: '', radius: radius);
-        case 1: return PieChartSectionData(color: Colors.blue, value: 20, title: '', radius: radius);
-        case 2: return PieChartSectionData(color: Colors.orange, value: 8, title: '', radius: radius);
-        case 3: return PieChartSectionData(color: Colors.redAccent, value: 2, title: '', radius: radius);
+        case 0: return PieChartSectionData(color: Colors.green, value: _p5, title: '', radius: radius);
+        case 1: return PieChartSectionData(color: Colors.blue, value: _p4, title: '', radius: radius);
+        case 2: return PieChartSectionData(color: Colors.orange, value: _p3, title: '', radius: radius);
+        case 3: return PieChartSectionData(color: Colors.redAccent, value: _p12, title: '', radius: radius);
         default: throw Error();
       }
     });

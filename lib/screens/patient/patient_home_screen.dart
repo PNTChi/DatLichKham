@@ -151,7 +151,7 @@ class PatientHomeScreen extends StatelessWidget {
                     ),
                   ),
                   InkWell(
-                    onTap: () {},
+                    onTap: () => _showSupportDialog(context), // SỬA: Gọi hàm hỗ trợ
                     child: Column(
                       children: const [
                         Icon(Icons.support_agent, color: Colors.black87, size: 26),
@@ -161,7 +161,7 @@ class PatientHomeScreen extends StatelessWidget {
                     ),
                   ),
                   InkWell(
-                    onTap: () {},
+                    onTap: () => _showAboutUsDialog(context), // SỬA: Gọi hàm về chúng tôi
                     child: Column(
                       children: const [
                         Icon(Icons.health_and_safety, color: Colors.black87, size: 26),
@@ -244,31 +244,31 @@ class PatientHomeScreen extends StatelessWidget {
               const SizedBox(height: 25),
 
               // BÁC SĨ NỔI BẬT
-              _buildSectionTitle('Bác sĩ nổi bật'),
+              _buildSectionTitle(context, 'Bác sĩ nổi bật'),
               const SizedBox(height: 15),
               _buildRecentlyVisitedList(),
 
               const SizedBox(height: 25),
 
               // CHUYÊN KHOA PHỔ BIẾN
-              _buildSectionTitle('Chuyên khoa phổ biến', showViewAll: true),
+              _buildSectionTitle(context, 'Chuyên khoa phổ biến', showViewAll: true),
               const SizedBox(height: 15),
-              _buildSpecializedDoctorsGrid(),
+              _buildSpecializedDoctorsGrid(context),
 
               const SizedBox(height: 25),
 
               // BANNER KHÁM TỔNG QUÁT
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: _buildLabTestBanner(),
+                child: _buildLabTestBanner(context),
               ),
 
               const SizedBox(height: 25),
 
               // TIN TỨC SỨC KHỎE
-              _buildSectionTitle('Tin tức sức khỏe'),
+              _buildSectionTitle(context, 'Tin tức sức khỏe'),
               const SizedBox(height: 15),
-              _buildHealthArticlesList(),
+              _buildHealthArticlesList(context),
 
               const SizedBox(height: 20),
             ],
@@ -280,7 +280,7 @@ class PatientHomeScreen extends StatelessWidget {
 
   // ===================== CÁC HÀM XÂY DỰNG WIDGET (HOME) =====================
 
-  Widget _buildSectionTitle(String title, {bool showViewAll = false}) {
+  Widget _buildSectionTitle(BuildContext context, String title, {bool showViewAll = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Row(
@@ -289,7 +289,12 @@ class PatientHomeScreen extends StatelessWidget {
           Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
           if (showViewAll)
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SearchDoctorScreen()),
+                );
+              },
               child: Text('Xem tất cả', style: TextStyle(color: Colors.blue[600], fontSize: 13)),
             ),
         ],
@@ -504,7 +509,7 @@ class PatientHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSpecializedDoctorsGrid() {
+  Widget _buildSpecializedDoctorsGrid(BuildContext context) {
     return SizedBox(
       height: 110,
       child: ListView.separated(
@@ -517,26 +522,42 @@ class PatientHomeScreen extends StatelessWidget {
           String specialists = index == 0 ? '250 Bác sĩ' : '150 Bác sĩ';
           IconData icon = index == 0 ? Icons.favorite_border : Icons.child_care_outlined;
 
-          return Container(
-            width: 110,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFE6F0FF),
+          // SỬA: Bọc bằng Material và InkWell để tạo hiệu ứng bấm và điều hướng
+          return Material(
+            color: Colors.transparent,
+            child: InkWell(
               borderRadius: BorderRadius.circular(15),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, color: const Color(0xFF1F2970), size: 30),
-                const SizedBox(height: 10),
-                Text(
-                  name,
-                  style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1F2970), fontSize: 12),
-                  textAlign: TextAlign.center,
+              onTap: () {
+                // Điều hướng tới trang danh sách bác sĩ và lọc theo chuyên khoa
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DoctorListScreen(specialty: name),
+                  ),
+                );
+              },
+              child: Container(
+                width: 110,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE6F0FF),
+                  borderRadius: BorderRadius.circular(15),
                 ),
-                const SizedBox(height: 4),
-                Text(specialists, style: TextStyle(color: Colors.blue[600], fontSize: 10)),
-              ],
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(icon, color: const Color(0xFF1F2970), size: 30),
+                    const SizedBox(height: 10),
+                    Text(
+                      name,
+                      style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1F2970), fontSize: 12),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(specialists, style: TextStyle(color: Colors.blue[600], fontSize: 10)),
+                  ],
+                ),
+              ),
             ),
           );
         },
@@ -544,7 +565,7 @@ class PatientHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLabTestBanner() {
+  Widget _buildLabTestBanner(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(color: const Color(0xFFFFF3E0), borderRadius: BorderRadius.circular(20)),
@@ -571,7 +592,13 @@ class PatientHomeScreen extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                // Bây giờ context đã được nhận từ tham số truyền vào
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LabTestsScreen()),
+                );
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1F2970),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -585,46 +612,108 @@ class PatientHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHealthArticlesList() {
+  Widget _buildHealthArticlesList(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Column(
         children: [
-          _buildArticleItem('Bí quyết duy trì trái tim khỏe mạnh cho mọi lứa tuổi', '12 Thg 6, 2024'),
-          _buildArticleItem('Những siêu thực phẩm nên thêm vào bữa ăn gia đình', '10 Thg 6, 2024'),
+          _buildArticleItem(context, 'Bí quyết duy trì trái tim khỏe mạnh cho mọi lứa tuổi', '12 Thg 6, 2024'),
+          _buildArticleItem(context, 'Những siêu thực phẩm nên thêm vào bữa ăn gia đình', '10 Thg 6, 2024'),
         ],
       ),
     );
   }
 
-  Widget _buildArticleItem(String title, String date) {
+  Widget _buildArticleItem(BuildContext context, String title, String date) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 100, height: 70,
-            decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(10)),
-            child: const Icon(Icons.image, color: Colors.grey),
-          ),
-          const SizedBox(width: 15),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: Colors.black87, height: 1.3),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 6),
-                Text(date, style: const TextStyle(color: Colors.grey, fontSize: 11)),
-              ],
+      // CHỈ CÓ 1 THUỘC TÍNH 'child' LÀ InkWell
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ArticleDetailScreen(title: title)),
+          );
+        },
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 100, height: 70,
+              decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(10)),
+              child: const Icon(Icons.image, color: Colors.grey),
             ),
-          ),
+            const SizedBox(width: 15),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: Colors.black87, height: 1.3),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(date, style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Hàm hiển thị hỗ trợ
+  void _showSupportDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Hỗ trợ 24/7', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text('Liên hệ hotline: 1900 1234\nEmail: support@medicare.vn\nChúng tôi luôn sẵn sàng lắng nghe bạn.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Đóng')),
         ],
+      ),
+    );
+  }
+
+  // Hàm hiển thị về chúng tôi
+  void _showAboutUsDialog(BuildContext context) {
+    showAboutDialog(
+      context: context,
+      applicationName: 'Medicare',
+      applicationVersion: '1.0.0',
+      applicationIcon: const Icon(Icons.health_and_safety, size: 40, color: Color(0xFF1B2473)),
+      children: [
+        const SizedBox(height: 10),
+        const Text('Ứng dụng đặt lịch khám và quản lý sức khỏe dành cho bệnh nhân.'),
+      ],
+    );
+  }
+}
+
+class ArticleDetailScreen extends StatelessWidget {
+  final String title;
+  const ArticleDetailScreen({super.key, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Chi tiết tin tức'), backgroundColor: Colors.white, foregroundColor: Colors.black),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            Container(height: 200, color: Colors.grey[200], child: const Center(child: Icon(Icons.image, size: 50))),
+            const SizedBox(height: 20),
+            Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            const Text('Nội dung bài viết đang được cập nhật...'),
+          ],
+        ),
       ),
     );
   }

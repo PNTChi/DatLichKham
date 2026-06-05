@@ -25,7 +25,7 @@ class _ConsultChatScreenState extends State<ConsultChatScreen> {
   @override
   void initState() {
     super.initState();
-    // Vừa mở màn hình chat lên là lập tức báo cho Firebase biết "Tui đã đọc tin nhắn rồi!"
+    // Đánh dấu đã đọc khi mở chat
     DatabaseService().markChatAsRead(widget.chatId);
   }
 
@@ -35,13 +35,63 @@ class _ConsultChatScreenState extends State<ConsultChatScreen> {
     super.dispose();
   }
 
+  // Hàm gửi tin nhắn văn bản bình thường
   void _send() {
     final t = _controller.text.trim();
     if (t.isEmpty) return;
 
-    // Gửi tin nhắn lên Firebase
     DatabaseService().sendMessage(widget.chatId, t);
     _controller.clear();
+  }
+
+  // =================================================================
+  // HÀM MỚI: TỰ ĐỘNG LẤY HỒ SƠ SỨC KHỎE VÀ GỬI VÀO CHAT
+  // =================================================================
+  Future<void> _sendHealthRecord() async {
+    final uid = DatabaseService().currentUid;
+    if (uid == null) return;
+
+    // Hiện vòng xoay loading mờ mờ
+    showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator(color: AppColors.navy)));
+
+    try {
+      // 1. Kéo dữ liệu hồ sơ của Bệnh nhân đang đăng nhập từ Firebase
+      final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      if (!doc.exists) {
+        if (!mounted) return;
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Không tìm thấy dữ liệu hồ sơ!')));
+        return;
+      }
+
+      final data = doc.data() as Map<String, dynamic>;
+
+      // 2. Xử lý và format dữ liệu thành văn bản tin nhắn
+      List<dynamic> rawDiseases = data['backgroundDiseases'] ?? [];
+      String diseasesStr = rawDiseases.isEmpty ? 'Không có' : rawDiseases.join(', ');
+
+      String content = "📋 HỒ SƠ SỨC KHỎE BỆNH NHÂN 📋\n"
+          "• Tên: ${data['fullName'] ?? 'Chưa rõ'}\n"
+          "• Chiều cao: ${data['height'] ?? '--'} cm | Cân nặng: ${data['weight'] ?? '--'} kg\n"
+          "• Nhóm máu: ${data['bloodType'] ?? 'Chưa rõ'}\n"
+          "• Nhịp tim: ${data['heartRate'] ?? '--'} bpm | Huyết áp: ${data['bloodPressure'] ?? '--'} mmHg\n"
+          "--------------------------\n"
+          "🚨 Dị ứng: ${data['allergies'] ?? 'Không'}\n"
+          "🦠 Bệnh nền: $diseasesStr\n"
+          "💊 Thuốc đang dùng: ${data['currentMedications'] ?? 'Không'}\n"
+          "👨‍👩‍👧‍👦 Tiền sử gia đình: ${data['familyHistory'] ?? 'Chưa ghi nhận'}";
+
+      // 3. Đẩy nội dung vào khung chat
+      await DatabaseService().sendMessage(widget.chatId, content);
+
+      if (!mounted) return;
+      Navigator.pop(context); // Tắt loading
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đã gửi hồ sơ sức khỏe thành công!'), backgroundColor: Colors.green));
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.pop(context); // Tắt loading
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Lỗi khi gửi hồ sơ!'), backgroundColor: Colors.red));
+    }
   }
 
   @override
@@ -65,6 +115,7 @@ class _ConsultChatScreenState extends State<ConsultChatScreen> {
       ),
       body: Column(
         children: [
+          // KHU VỰC HIỂN THỊ TIN NHẮN
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
@@ -81,7 +132,7 @@ class _ConsultChatScreenState extends State<ConsultChatScreen> {
                 final msgs = snapshot.data!.docs;
 
                 return ListView.builder(
-                  reverse: true, // Tin nhắn mới nhất nằm ở dưới
+                  reverse: true, // Cuộn từ dưới lên (chuẩn app chat)
                   padding: const EdgeInsets.all(16),
                   itemCount: msgs.length,
                   itemBuilder: (context, i) {
@@ -94,6 +145,8 @@ class _ConsultChatScreenState extends State<ConsultChatScreen> {
               },
             ),
           ),
+
+          // THANH NHẬP TIN NHẮN
           Container(
             color: Colors.white,
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
@@ -101,9 +154,11 @@ class _ConsultChatScreenState extends State<ConsultChatScreen> {
               top: false,
               child: Row(
                 children: [
+                  // NÚT GỬI HỒ SƠ SỨC KHỎE (Tui đã đổi icon cho hợp ngữ cảnh y tế)
                   IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.dynamic_feed, color: Colors.black54),
+                    onPressed: _sendHealthRecord, // Kích hoạt hàm gửi hồ sơ
+                    icon: const Icon(Icons.assignment_ind, color: AppColors.navy), // Icon hình hồ sơ
+                    tooltip: 'Gửi Hồ sơ Sức khỏe',
                   ),
                   Expanded(
                     child: TextField(
@@ -140,6 +195,7 @@ class _ConsultChatScreenState extends State<ConsultChatScreen> {
   }
 }
 
+// BONG BÓNG TIN NHẮN
 class _Bubble extends StatelessWidget {
   const _Bubble({required this.text, required this.fromUser});
   final String text;
@@ -162,7 +218,10 @@ class _Bubble extends StatelessWidget {
             bottomRight: Radius.circular(fromUser ? 4 : 16),
           ),
         ),
-        child: Text(text, style: TextStyle(color: fromUser ? Colors.white : Colors.black87, fontSize: 15, height: 1.4)),
+        child: Text(
+          text,
+          style: TextStyle(color: fromUser ? Colors.white : Colors.black87, fontSize: 15, height: 1.4),
+        ),
       ),
     );
   }

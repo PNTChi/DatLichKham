@@ -8,7 +8,9 @@ import 'package:dat_lich_kham_app/screens/doctor/doctor_prescription_screen.dart
 import 'package:dat_lich_kham_app/screens/doctor/doctor_settings_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/auto_scroll_appointment.dart';
+import '../../services/database_service.dart';
 import 'package:dat_lich_kham_app/screens/doctor/doctor_stats_screen.dart';
+import 'package:dat_lich_kham_app/screens/doctor/doctor_notifications_screen.dart';
 
 class DoctorHomeScreen extends StatefulWidget {
   const DoctorHomeScreen({super.key});
@@ -21,12 +23,6 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
   // Biến lưu thông tin bác sĩ đăng nhập
   String _doctorName = 'Đang tải...';
   String _doctorSpecialty = 'Đang tải...';
-
-  final List<Map<String, String>> _upcomingAppointments = [
-    {'title': 'Khám Tổng quát - Nguyễn Văn A', 'time': '08:30 - 09:00', 'subtitle': 'Phòng khám ABC, HCM'},
-    {'title': 'Tư vấn Online - Lê Thị B', 'time': '09:15 - 09:45', 'subtitle': 'Nhắn tin'},
-    {'title': 'Đọc kết quả X-Quang - Trần C', 'time': '10:00 - 10:30', 'subtitle': 'Phòng chẩn đoán'},
-  ];
 
   @override
   void initState() {
@@ -68,7 +64,6 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
               ),
               child: Column(
                 children: [
-                  // THANH TÌM KIẾM
                   Padding(
                     padding: const EdgeInsets.all(20),
                     child: TextField(
@@ -86,44 +81,29 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
                       },
                     ),
                   ),
-
-                  // DANH SÁCH KẾT QUẢ TỪ FIREBASE
                   Expanded(
                     child: StreamBuilder<QuerySnapshot>(
                       stream: searchQuery.isEmpty
-                          ? FirebaseFirestore.instance.collection('users')
-                          .where('role', isEqualTo: 'patient')
-                          .limit(20)
-                          .snapshots()
+                          ? FirebaseFirestore.instance.collection('users').where('role', isEqualTo: 'patient').limit(20).snapshots()
                           : FirebaseFirestore.instance.collection('users')
                           .where('role', isEqualTo: 'patient')
                           .where('fullName', isGreaterThanOrEqualTo: searchQuery)
                           .where('fullName', isLessThan: '$searchQuery\uf8ff')
-                          .limit(20)
-                          .snapshots(),
+                          .limit(20).snapshots(),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator(color: AppColors.navy));
-                        }
-
+                        if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator(color: AppColors.navy));
                         final docs = snapshot.data?.docs ?? [];
-                        if (docs.isEmpty) {
-                          return const Center(child: Text('Không tìm thấy bệnh nhân nào', style: TextStyle(color: Colors.grey)));
-                        }
+                        if (docs.isEmpty) return const Center(child: Text('Không tìm thấy bệnh nhân nào', style: TextStyle(color: Colors.grey)));
 
                         return ListView.builder(
                           itemCount: docs.length,
                           itemBuilder: (context, index) {
                             final data = docs[index].data() as Map<String, dynamic>;
                             return ListTile(
-                              leading: const CircleAvatar(
-                                backgroundColor: AppColors.surfaceMuted,
-                                child: Icon(Icons.person, color: AppColors.navy),
-                              ),
+                              leading: const CircleAvatar(backgroundColor: AppColors.surfaceMuted, child: Icon(Icons.person, color: AppColors.navy)),
                               title: Text(data['fullName'] ?? 'Chưa cập nhật tên', style: const TextStyle(fontWeight: FontWeight.bold)),
                               subtitle: Text(data['email'] ?? ''),
                               onTap: () {
-                                // KHI BÁC SĨ CHỌN BỆNH NHÂN -> ĐÓNG MODAL VÀ MỞ BỆNH ÁN
                                 Navigator.pop(ctx);
                                 Navigator.push(
                                   context,
@@ -179,8 +159,10 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
       ),
       actions: [
         IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.notifications_none_rounded, color: Colors.black54, size: 28),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const DoctorNotificationsScreen()));
+            },
+            icon: const Icon(Icons.notifications_none_rounded, color: Colors.black54, size: 28)
         ),
         const SizedBox(width: 10),
       ],
@@ -203,17 +185,12 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
                 Text(_doctorName, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87)),
                 const SizedBox(height: 20),
 
-                // THANH TÌM KIẾM TRÊN CÙNG
                 InkWell(
                   onTap: () => _showPatientSearchModal(context),
                   borderRadius: BorderRadius.circular(30),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(color: Colors.grey[200]!),
-                    ),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30), border: Border.all(color: Colors.grey[200]!)),
                     child: Row(
                       children: const [
                         Icon(Icons.search, color: Colors.grey),
@@ -234,7 +211,7 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
               children: [
                 const Text('Lịch trình tiếp theo', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
                 const SizedBox(height: 12),
-                AutoScrollAppointmentCard(appointments: _upcomingAppointments),
+                _buildAutoScrollAppointments(), // GỌI DỮ LIỆU THẬT THAY VÌ HARCODE
               ],
             ),
           ),
@@ -255,12 +232,7 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
                   childAspectRatio: 1.25,
                   children: [
                     _buildGridAction(context, Icons.calendar_month, 'Lịch khám', 'Quản lý lịch hẹn', targetScreen: const DoctorAppointmentScreen()),
-
-                    // =======================================================
-                    // NÚT BỆNH ÁN: Đã đổi thành gọi hàm mở Search Modal
-                    // =======================================================
                     _buildGridAction(context, Icons.assignment_ind, 'Bệnh án', 'Hồ sơ y tế', onTap: () => _showPatientSearchModal(context)),
-
                     _buildGridAction(context, Icons.chat_bubble_outline, 'Tư vấn', 'Trực tuyến', targetScreen: const DoctorConsultScreen()),
                     _buildGridAction(context, Icons.medication, 'Kê đơn', 'Đơn thuốc điện tử', targetScreen: const DoctorPrescriptionScreen()),
                   ],
@@ -269,6 +241,8 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
             ),
           ),
           const SizedBox(height: 25),
+
+          // GỌI HÀM RENDER DANH SÁCH BỆNH NHÂN REAL-TIME TỪ FIREBASE
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Column(
@@ -276,9 +250,7 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
               children: [
                 const Text('Bệnh nhân chờ khám', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
                 const SizedBox(height: 12),
-                _buildPatientItem(context, 'Nguyễn Văn A', 'Nam, 45T', '08:30', 'Tái khám dạ dày', Colors.redAccent),
-                _buildPatientItem(context, 'Trần Thị B', 'Nữ, 32T', '09:15', 'Tư vấn đau đầu', Colors.orange),
-                _buildPatientItem(context, 'Lê Văn C', 'Nam, 28T', '10:00', 'Khám tổng quát', Colors.green),
+                _buildRealtimePatientList(),
                 const SizedBox(height: 20),
               ],
             ),
@@ -288,7 +260,134 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
     );
   }
 
-  // ĐÃ CẬP NHẬT HÀM NÀY ĐỂ NHẬN SỰ KIỆN onTap TÙY CHỈNH
+  // ==========================================================
+  // KHỐI 1: LẤY DỮ LIỆU FIREBASE CHO AUTO-SCROLL (LỊCH TRÌNH TIẾP THEO)
+  // ==========================================================
+  Widget _buildAutoScrollAppointments() {
+    return StreamBuilder<QuerySnapshot>(
+        stream: DatabaseService().getDoctorAppointments(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const AutoScrollAppointmentCard(appointments: [{'title': 'Chưa có lịch trình', 'time': '--:--', 'subtitle': 'Trống'}]);
+          }
+
+          final docs = snapshot.data!.docs.where((doc) {
+            final status = (doc.data() as Map<String, dynamic>)['status'];
+            return status == 'pending' || status == 'confirmed';
+          }).toList();
+
+          docs.sort((a, b) {
+            final tA = (a.data() as Map<String, dynamic>)['appointmentTime'] as Timestamp?;
+            final tB = (b.data() as Map<String, dynamic>)['appointmentTime'] as Timestamp?;
+            if (tA == null || tB == null) return 0;
+            return tA.compareTo(tB);
+          });
+
+          if (docs.isEmpty) {
+            return const AutoScrollAppointmentCard(appointments: [{'title': 'Chưa có lịch trình', 'time': '--:--', 'subtitle': 'Trống'}]);
+          }
+
+          final List<Map<String, String>> upcomings = docs.take(3).map((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            String timeStr = '--:--';
+            Timestamp? ts = data['appointmentTime'] as Timestamp?;
+            if (ts != null) {
+              final dt = ts.toDate();
+              timeStr = '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')} - ${dt.day}/${dt.month}';
+            }
+            final status = data['status'] == 'confirmed' ? 'Đã duyệt' : 'Chờ duyệt';
+            return {
+              'title': 'Khám / Tư vấn Online',
+              'time': timeStr,
+              'subtitle': 'Trạng thái: $status'
+            };
+          }).toList();
+
+          return AutoScrollAppointmentCard(appointments: upcomings);
+        }
+    );
+  }
+
+  // ==========================================================
+  // KHỐI 2: LẤY DỮ LIỆU FIREBASE CHO DANH SÁCH BỆNH NHÂN CHỜ KHÁM
+  // ==========================================================
+  Widget _buildRealtimePatientList() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: DatabaseService().getDoctorAppointments(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator(color: AppColors.navy));
+        }
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const Padding(padding: EdgeInsets.all(20), child: Text('Hiện không có bệnh nhân chờ khám', style: TextStyle(color: Colors.grey)));
+        }
+
+        final docs = snapshot.data!.docs.where((doc) {
+          final status = (doc.data() as Map<String, dynamic>)['status'];
+          return status == 'pending' || status == 'confirmed';
+        }).toList();
+
+        // Sắp xếp thời gian
+        docs.sort((a, b) {
+          final tA = (a.data() as Map<String, dynamic>)['appointmentTime'] as Timestamp?;
+          final tB = (b.data() as Map<String, dynamic>)['appointmentTime'] as Timestamp?;
+          if (tA == null || tB == null) return 0;
+          return tA.compareTo(tB);
+        });
+
+        if (docs.isEmpty) {
+          return const Padding(padding: EdgeInsets.all(20), child: Text('Hiện không có bệnh nhân chờ khám', style: TextStyle(color: Colors.grey)));
+        }
+
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: docs.length,
+          itemBuilder: (context, index) {
+            final data = docs[index].data() as Map<String, dynamic>;
+            final pId = data['patientId'] ?? '';
+            final status = data['status'] ?? 'pending';
+
+            String timeStr = '--:--';
+            Timestamp? ts = data['appointmentTime'] as Timestamp?;
+            if (ts != null) {
+              final dt = ts.toDate();
+              timeStr = '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+            }
+
+            Color statusColor = status == 'confirmed' ? Colors.blue : Colors.orange;
+            String statusText = status == 'confirmed' ? 'Đã duyệt' : 'Chờ duyệt';
+
+            // Gọi thêm 1 lần query để kéo Tên, Tuổi, Giới tính của bệnh nhân này ra
+            return FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance.collection('users').doc(pId).get(),
+                builder: (context, pSnap) {
+                  String pName = 'Đang tải...';
+                  String info = '--';
+
+                  if (pSnap.hasData && pSnap.data!.exists) {
+                    final pData = pSnap.data!.data() as Map<String, dynamic>;
+                    pName = pData['fullName'] ?? 'Bệnh nhân ẩn danh';
+
+                    final gender = pData['gender'] ?? 'Chưa rõ';
+                    final bYear = pData['birthYear'];
+                    if (bYear != null) {
+                      int age = DateTime.now().year - int.parse(bYear.toString());
+                      info = '$gender, ${age}T';
+                    } else {
+                      info = gender;
+                    }
+                  }
+
+                  return _buildPatientItem(context, pName, info, timeStr, statusText, statusColor, pId);
+                }
+            );
+          },
+        );
+      },
+    );
+  }
+
   Widget _buildGridAction(BuildContext context, IconData icon, String title, String subtitle, {Widget? targetScreen, VoidCallback? onTap}) {
     return Material(
       color: Colors.transparent,
@@ -324,7 +423,8 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
     );
   }
 
-  Widget _buildPatientItem(BuildContext context, String name, String info, String time, String reason, Color statusColor) {
+  // ĐÃ CẬP NHẬT TRUYỀN patientId ĐỂ VÀO ĐÚNG HỒ SƠ
+  Widget _buildPatientItem(BuildContext context, String name, String info, String time, String reason, Color statusColor, String patientId) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(15),
@@ -359,8 +459,16 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
           ),
           ElevatedButton(
             onPressed: () {
-              // Chỗ này bạn có thể cập nhật sau để nối với ID thật
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const DoctorEmrScreen()));
+              // TRUYỀN ĐÚNG ID VÀ TÊN SANG EMR SCREEN
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => DoctorEmrScreen(
+                          patientId: patientId,
+                          patientName: name
+                      )
+                  )
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.navy,
@@ -442,8 +550,12 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
                   child: Column(children: const [Icon(Icons.settings, color: Colors.black87), SizedBox(height: 8), Text('Cài đặt', style: TextStyle(fontSize: 12))]),
                 ),
                 InkWell(
-                  onTap: () {},
+                  onTap: () => _showSupportDialog(context),
                   child: Column(children: const [Icon(Icons.support_agent, color: Colors.black87), SizedBox(height: 8), Text('Hỗ trợ', style: TextStyle(fontSize: 12))]),
+                ),
+                InkWell(
+                  onTap: () => _showAboutUsDialog(context),
+                  child: Column(children: const [Icon(Icons.health_and_safety, color: Colors.black87), SizedBox(height: 8), Text('Về chúng tôi', style: TextStyle(fontSize: 12))]),
                 ),
               ],
             ),
@@ -451,6 +563,35 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
           const SizedBox(height: 20),
         ],
       ),
+    );
+  }
+  // Hàm hiển thị hỗ trợ
+  void _showSupportDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Hỗ trợ 24/7', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text('Liên hệ hotline: 1900 1234\nEmail: support@medicare.vn\nChúng tôi luôn sẵn sàng hỗ trợ bác sĩ.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Đóng')),
+        ],
+      ),
+    );
+  }
+
+  // Hàm hiển thị về chúng tôi
+  void _showAboutUsDialog(BuildContext context) {
+    showAboutDialog(
+      context: context,
+      applicationName: 'Medicare - Bác sĩ',
+      applicationVersion: '1.0.0',
+      applicationIcon: const Icon(Icons.health_and_safety, size: 40, color: Color(0xFF1B2473)),
+      applicationLegalese: '© 2026 Medicare Inc.',
+      children: [
+        const SizedBox(height: 10),
+        const Text('Ứng dụng quản lý lịch khám và hồ sơ bệnh nhân dành cho bác sĩ.'),
+      ],
     );
   }
 }

@@ -4,8 +4,22 @@ import '../../theme/app_colors.dart';
 import '../patient/consult_chat_screen.dart';
 import '../../services/database_service.dart';
 
-class DoctorConsultScreen extends StatelessWidget {
+class DoctorConsultScreen extends StatefulWidget {
   const DoctorConsultScreen({super.key});
+
+  @override
+  State<DoctorConsultScreen> createState() => _DoctorConsultScreenState();
+}
+
+class _DoctorConsultScreenState extends State<DoctorConsultScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,11 +47,28 @@ class DoctorConsultScreen extends StatelessWidget {
                 color: Colors.grey.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const TextField(
+              child: TextField(
+                controller: _searchController,
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value.trim();
+                  });
+                },
                 decoration: InputDecoration(
                   hintText: 'Tìm kiếm bệnh nhân...',
                   border: InputBorder.none,
-                  icon: Icon(Icons.search, color: Colors.grey),
+                  icon: const Icon(Icons.search, color: Colors.grey),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                    icon: const Icon(Icons.clear, color: Colors.grey, size: 20),
+                    onPressed: () {
+                      _searchController.clear();
+                      setState(() {
+                        _searchQuery = '';
+                      });
+                    },
+                  )
+                      : null,
                 ),
               ),
             ),
@@ -48,7 +79,6 @@ class DoctorConsultScreen extends StatelessWidget {
             child: StreamBuilder<QuerySnapshot>(
               stream: DatabaseService().getDoctorChats('active'),
               builder: (context, snapshot) {
-                // Hiển thị lỗi rõ ràng nếu Firebase bị lỗi
                 if (snapshot.hasError) {
                   return Center(child: Text('Lỗi Firebase: ${snapshot.error}', style: const TextStyle(color: Colors.red)));
                 }
@@ -63,7 +93,7 @@ class DoctorConsultScreen extends StatelessWidget {
                   );
                 }
 
-                // TỰ SẮP XẾP BẰNG DART (Tin nhắn mới nhất lên đầu)
+                // Sắp xếp tin nhắn mới nhất lên đầu
                 final chats = snapshot.data!.docs.toList();
                 chats.sort((a, b) {
                   final dataA = a.data() as Map<String, dynamic>;
@@ -93,6 +123,12 @@ class DoctorConsultScreen extends StatelessWidget {
                         String patientName = 'Bệnh nhân';
                         if (userSnap.hasData && userSnap.data!.exists) {
                           patientName = userSnap.data!['fullName'] ?? 'Bệnh nhân';
+                        }
+
+                        // LOGIC TÌM KIẾM: Ẩn đi nếu tên không khớp với từ khóa
+                        if (_searchQuery.isNotEmpty &&
+                            !patientName.toLowerCase().contains(_searchQuery.toLowerCase())) {
+                          return const SizedBox.shrink();
                         }
 
                         return _buildChatItem(

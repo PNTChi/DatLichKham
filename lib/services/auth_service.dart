@@ -35,14 +35,16 @@ class AuthService {
           'allergies': 'Chưa ghi nhận',
           'heartRate': '--',
           'bloodPressure': '--/--',
-          'height': '--',
-          'weight': '--',
+          'height': '170', // Tạm để số mặc định để tính BMI không bị lỗi
+          'weight': '60',  // Tạm để số mặc định
           'backgroundDiseases': [],
-          // === CÁC TRƯỜNG BỔ SUNG MỚI ===
-          'bloodType': 'Chưa rõ', // Nhóm máu
-          'phoneNumber': '',      // Số điện thoại
-          'address': '',          // Địa chỉ
-          'avatarUrl': '',        // Link ảnh đại diện
+          'bloodType': 'Chưa rõ',
+          'phoneNumber': '',
+          'address': '',
+          'avatarUrl': '',
+          // === 2 TRƯỜNG MỚI THEO GIAO DIỆN ===
+          'currentMedications': 'Không có',
+          'familyHistory': 'Chưa ghi nhận',
         });
       }
 

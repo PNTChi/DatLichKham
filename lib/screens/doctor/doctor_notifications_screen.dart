@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../theme/app_colors.dart';
 
-class NotificationsScreen extends StatefulWidget {
-  const NotificationsScreen({super.key});
+class DoctorNotificationsScreen extends StatefulWidget {
+  const DoctorNotificationsScreen({super.key});
 
   @override
-  State<NotificationsScreen> createState() => _NotificationsScreenState();
+  State<DoctorNotificationsScreen> createState() => _DoctorNotificationsScreenState();
 }
 
-class _NotificationsScreenState extends State<NotificationsScreen> {
-  bool notifyAppointment = true;
-  bool notifyPill = true;
+class _DoctorNotificationsScreenState extends State<DoctorNotificationsScreen> {
+  bool notifyNewAppointment = true;
+  bool notifyMessages = true;
   bool isLoading = true;
 
   @override
@@ -25,8 +25,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     try {
       final prefs = await SharedPreferences.getInstance();
       setState(() {
-        notifyAppointment = prefs.getBool('notifyAppointment') ?? true;
-        notifyPill = prefs.getBool('notifyPill') ?? true;
+        notifyNewAppointment = prefs.getBool('notifyNewAppointment') ?? true;
+        notifyMessages = prefs.getBool('notifyMessages') ?? true;
       });
     } catch (e) {
       debugPrint("Lỗi tải cài đặt: $e");
@@ -43,16 +43,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     // Dữ liệu danh sách thông báo
     final allNotifs = [
-      _Notif(Icons.event_available_rounded, 'Nhắc lịch khám', 'Bạn có lịch với BS. Quang Vinh vào 09:30 ngày mai.', 'Hôm nay', 'appointment'),
-      _Notif(Icons.local_pharmacy_rounded, 'Đơn thuốc', 'Đơn thuốc từ BS. Ngọc Mai đã sẵn sàng tại nhà thuốc.', 'Hôm qua', 'pill'),
-      _Notif(Icons.campaign_outlined, 'Ưu đãi', 'Giảm 15% gói xét nghiệm tổng quát trong tuần này.', '2 ngày trước', 'promo'),
+      _Notif(Icons.event_note, 'Lịch khám mới', 'Bệnh nhân Nguyễn Văn A vừa đặt lịch khám vào ngày mai.', '10 phút trước', 'appointment'),
+      _Notif(Icons.message_outlined, 'Tin nhắn mới', 'Bệnh nhân Trần Thị B đã gửi một tin nhắn cần tư vấn.', '1 giờ trước', 'message'),
+      _Notif(Icons.system_security_update, 'Cập nhật hệ thống', 'Phiên bản mới của Medicare đã có sẵn.', 'Hôm qua', 'system'),
     ];
 
     // Lọc danh sách thông báo dựa trên cài đặt
     final displayNotifs = allNotifs.where((n) {
-      if (n.type == 'appointment' && !notifyAppointment) return false;
-      if (n.type == 'pill' && !notifyPill) return false;
-      return true; // Ưu đãi luôn hiển thị
+      if (n.type == 'appointment' && !notifyNewAppointment) return false;
+      if (n.type == 'message' && !notifyMessages) return false;
+      return true;
     }).toList();
 
     return Scaffold(
@@ -64,7 +64,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Thông báo', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 18)),
+        title: const Text('Thông báo hệ thống', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 18)),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())

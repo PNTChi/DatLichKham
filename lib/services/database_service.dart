@@ -289,13 +289,15 @@ class DatabaseService {
   Future<void> updatePatientHealthProfile({
     required String gender,
     required int birthYear,
-    required String bloodType, // Thêm Nhóm máu
+    required String bloodType,
     required String allergies,
     required String height,
     required String weight,
     required String heartRate,
     required String bloodPressure,
     required List<String> backgroundDiseases,
+    required String currentMedications,
+    required String familyHistory,
   }) async {
     if (currentUid == null) return;
 
@@ -309,11 +311,13 @@ class DatabaseService {
       'heartRate': heartRate,
       'bloodPressure': bloodPressure,
       'backgroundDiseases': backgroundDiseases,
+      'currentMedications': currentMedications,
+      'familyHistory': familyHistory,
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
 
-  // 2. Dùng để quét và FIX LỖI các tài khoản bệnh nhân cũ tạo trước đó chưa có dữ liệu
+  // 2. Dùng để quét và FIX LỖI các tài khoản bệnh nhân cũ
   Future<void> migrateOldPatientsData() async {
     final snapshot = await _db.collection('users').where('role', isEqualTo: 'patient').get();
     final WriteBatch batch = _db.batch();
@@ -322,23 +326,23 @@ class DatabaseService {
       final data = doc.data();
       Map<String, dynamic> updates = {};
 
-      // Kiểm tra và điền bù các field còn thiếu
       if (!data.containsKey('gender')) updates['gender'] = 'Chưa rõ';
       if (!data.containsKey('birthYear')) updates['birthYear'] = 2000;
       if (!data.containsKey('allergies')) updates['allergies'] = 'Không có';
       if (!data.containsKey('heartRate')) updates['heartRate'] = '75';
       if (!data.containsKey('bloodPressure')) updates['bloodPressure'] = '120/80';
-      if (!data.containsKey('height')) updates['height'] = '165';
+      if (!data.containsKey('height')) updates['height'] = '170';
       if (!data.containsKey('weight')) updates['weight'] = '60';
       if (!data.containsKey('backgroundDiseases')) updates['backgroundDiseases'] = [];
-
-      // Các field mới cập nhật thêm
       if (!data.containsKey('bloodType')) updates['bloodType'] = 'Chưa rõ';
       if (!data.containsKey('phoneNumber')) updates['phoneNumber'] = '';
       if (!data.containsKey('address')) updates['address'] = '';
       if (!data.containsKey('avatarUrl')) updates['avatarUrl'] = '';
 
-      // Chỉ gọi update nếu có trường cần thêm
+      // Bơm 2 field mới vào các tài khoản cũ
+      if (!data.containsKey('currentMedications')) updates['currentMedications'] = 'Không có';
+      if (!data.containsKey('familyHistory')) updates['familyHistory'] = 'Chưa ghi nhận';
+
       if (updates.isNotEmpty) {
         batch.update(doc.reference, updates);
       }
