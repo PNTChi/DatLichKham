@@ -222,6 +222,7 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
                     ),
 
                     // Chỉ hiện nút Hủy/Đổi nếu lịch chưa hoàn thành hoặc chưa bị hủy
+                    // Chỉ hiện nút Hủy/Đổi nếu lịch chưa hoàn thành hoặc chưa bị hủy
                     if (status == 'pending' || status == 'confirmed') ...[
                       const SizedBox(height: 16),
                       Row(

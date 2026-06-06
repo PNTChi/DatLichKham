@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -57,5 +58,82 @@ class AuthService {
 
   Future<void> logout() async {
     await _auth.signOut();
+  }
+
+  // ĐĂNG NHẬP BẰNG GOOGLE
+  Future<String?> signInWithGoogle() async {
+    try {
+      // 1. Khởi tạo GoogleSignIn (Không cần truyền clientId nếu đã có file google-services.json)
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+
+      // Mở bảng chọn tài khoản
+      final GoogleSignInAccount? gUser = await googleSignIn.signIn();
+
+      // Kiểm tra nếu người dùng bấm Back (đóng bảng chọn)
+      if (gUser == null) return 'Đã hủy đăng nhập';
+
+      // 2. Lấy thông tin xác thực (Cần gUser đã được kiểm tra null)
+      final GoogleSignInAuthentication gAuth = await gUser.authentication;
+      final OAuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: gAuth.accessToken,
+        idToken: gAuth.idToken,
+      );
+
+      // 3. Đăng nhập vào Firebase
+      UserCredential userCred = await _auth.signInWithCredential(credential);
+
+      // 4. Kiểm tra xem người dùng đã có hồ sơ trong Firestore chưa
+      final doc = await _firestore.collection('users').doc(userCred.user!.uid).get();
+
+      // NẾU LÀ LẦN ĐẦU ĐĂNG NHẬP -> TẠO HỒ SƠ MỚI
+      if (!doc.exists) {
+        await _firestore.collection('users').doc(userCred.user!.uid).set({
+          'uid': userCred.user!.uid,
+          'fullName': userCred.user!.displayName ?? 'Người dùng',
+          'email': userCred.user!.email,
+          'avatarUrl': userCred.user!.photoURL ?? '',
+          'role': 'patient',
+          'createdAt': FieldValue.serverTimestamp(),
+          'gender': 'Chưa rõ',
+          'birthYear': DateTime.now().year - 20,
+          'allergies': 'Chưa ghi nhận',
+          'heartRate': '--',
+          'bloodPressure': '--/--',
+          'height': '170',
+          'weight': '60',
+          'backgroundDiseases': [],
+          'bloodType': 'Chưa rõ',
+          'phoneNumber': '',
+          'address': '',
+          'currentMedications': 'Không có',
+          'familyHistory': 'Chưa ghi nhận',
+        });
+      }
+      return null; // Đăng nhập thành công
+    } on FirebaseAuthException catch (e) {
+      return e.message;
+    } catch (e) {
+      return e.toString();
+    }
+  }
+
+  // Hàm gửi email khôi phục mật khẩu
+  Future<String?> resetPassword(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      return null;
+    } on FirebaseAuthException catch (e) {
+      return e.message;
+    }
+  }
+
+  // Hàm đổi mật khẩu (khi đang đăng nhập)
+  Future<String?> changePassword(String newPassword) async {
+    try {
+      await _auth.currentUser?.updatePassword(newPassword);
+      return null;
+    } on FirebaseAuthException catch (e) {
+      return e.message;
+    }
   }
 }

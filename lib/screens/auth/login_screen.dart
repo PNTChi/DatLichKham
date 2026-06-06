@@ -3,6 +3,7 @@ import '../../theme/app_colors.dart';
 import '../../services/auth_service.dart';
 import 'register_screen.dart';
 import '../../main.dart';
+import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -101,6 +102,18 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 25),
 
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {
+                    // Nhớ import file forgot_password_screen.dart ở đầu trang nha
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const ForgotPasswordScreen()));
+                  },
+                  child: const Text('Quên mật khẩu?', style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold)),
+                ),
+              ),
+              const SizedBox(height: 10),
+
               // NÚT ĐĂNG NHẬP THẬT
               SizedBox(
                 width: double.infinity,
@@ -117,6 +130,64 @@ class _LoginScreenState extends State<LoginScreen> {
                       : const Text('Đăng nhập', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.navy)),
                 ),
               ),
+
+              const SizedBox(height: 30),
+
+              // ĐƯỜNG KẺ "HOẶC"
+              Row(
+                children: [
+                  Expanded(child: Divider(color: Colors.grey[300], thickness: 1)),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 15),
+                    child: Text('Hoặc', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w500)),
+                  ),
+                  Expanded(child: Divider(color: Colors.grey[300], thickness: 1)),
+                ],
+              ),
+              const SizedBox(height: 25),
+
+              // NÚT ĐĂNG NHẬP BẰNG GOOGLE
+              SizedBox(
+                width: double.infinity,
+                height: 55,
+                child: OutlinedButton(
+                  onPressed: _isLoading ? null : () async {
+                    setState(() => _isLoading = true);
+                    String? error = await AuthService().signInWithGoogle();
+                    setState(() => _isLoading = false);
+
+                    // Dùng if (context.mounted) là cách chuẩn nhất hiện nay
+                    if (!context.mounted) return;
+
+                    if (error == null) {
+                      Navigator.pushReplacement(
+                        context, // Dùng thẳng context, vì đã check context.mounted ở trên
+                        MaterialPageRoute(builder: (context) => const AuthGate()),
+                      );
+                    } else if (error != 'Đã hủy đăng nhập') {
+                      ScaffoldMessenger.of(context).showSnackBar( // Dùng thẳng context
+                        SnackBar(content: Text('Lỗi: $error'), backgroundColor: Colors.red),
+                      );
+                    }
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: Colors.grey[300]!),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    backgroundColor: Colors.white,
+                  ),
+                  child: _isLoading
+                      ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: AppColors.navy, strokeWidth: 2))
+                      : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Text('G', style: TextStyle(color: Colors.red, fontSize: 24, fontWeight: FontWeight.bold)),
+                      SizedBox(width: 12),
+                      Text('Đăng nhập bằng Google', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87)),
+                    ],
+                  ),
+                ),
+              ),
+
               const Spacer(),
               TextButton(
                 onPressed: () {

@@ -16,6 +16,7 @@ import 'health_record_screen.dart';
 import 'my_prescriptions_screen.dart';
 import 'medication_reminder_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'order_history_screen.dart';
 
 class PatientHomeScreen extends StatefulWidget {
   const PatientHomeScreen({super.key});
@@ -237,10 +238,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
               return Container(
                 width: double.infinity,
                 padding: const EdgeInsets.only(top: 60, bottom: 30, left: 20, right: 20),
-                decoration: const BoxDecoration(
-                  color: Color(0xFF1B2473),
-                  borderRadius: BorderRadius.only(bottomRight: Radius.circular(30)),
-                ),
+                decoration: const BoxDecoration(color: Color(0xFF1B2473), borderRadius: BorderRadius.only(bottomRight: Radius.circular(30))),
                 child: Row(
                   children: [
                     const CircleAvatar(radius: 30, backgroundColor: Colors.white, child: Icon(Icons.person, size: 40, color: Colors.grey)),
@@ -267,6 +265,14 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                 ListTile(leading: const Icon(Icons.science, color: Colors.lightBlue, size: 26), title: const Text('Kết quả xét nghiệm', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)), onTap: () { Navigator.pop(context); Navigator.push(context, MaterialPageRoute(builder: (context) => const LabTestResultsScreen())); },),
                 ListTile(leading: Icon(Icons.video_call, color: Colors.blue[700]!, size: 26), title: const Text('Khám trực tuyến', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)), onTap: () { Navigator.pop(context); Navigator.push(context, MaterialPageRoute(builder: (context) => const OnlineConsultScreen())); },),
                 ListTile(leading: Icon(Icons.shield, color: Colors.blue[600]!, size: 26), title: const Text('Hồ sơ sức khỏe', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)), onTap: () { Navigator.pop(context); Navigator.push(context, MaterialPageRoute(builder: (context) => const HealthRecordScreen())); },),
+                ListTile(
+                  leading: const Icon(Icons.history, color: Colors.blueAccent),
+                  title: const Text('Lịch sử mua thuốc'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const OrderHistoryScreen()));
+                  },
+                ),
               ],
             ),
           ),
@@ -277,8 +283,12 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 InkWell(onTap: () { Navigator.pop(context); Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen())); }, child: Column(children: const [Icon(Icons.settings, color: Colors.black87, size: 26), SizedBox(height: 8), Text('Cài đặt', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500))],)),
-                InkWell(onTap: () => _showSupportDialog(context), child: Column(children: const [Icon(Icons.support_agent, color: Colors.black87, size: 26), SizedBox(height: 8), Text('Hỗ trợ 24/7', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500))],)),
-                InkWell(onTap: () => _showAboutUsDialog(context), child: Column(children: const [Icon(Icons.health_and_safety, color: Colors.black87, size: 26), SizedBox(height: 8), Text('Về chúng tôi', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500))],)),
+                InkWell(onTap: () => _showSupportDialog(context), child: Column(children: const [Icon(Icons.support_agent, color: Colors.black87, size: 26), SizedBox(height: 8), Text('Hỗ trợ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500))],)),
+
+                InkWell(
+                  onTap: () => _showAboutUsDialog(context),
+                  child: Column(children: const [Icon(Icons.health_and_safety, color: Colors.black87, size: 26), SizedBox(height: 8), Text('Về chúng tôi', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500))],),
+                ),
               ],
             ),
           ),
@@ -446,7 +456,17 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
   }
 
   void _showAboutUsDialog(BuildContext context) {
-    showAboutDialog(context: context, applicationName: 'Medicare', applicationVersion: '1.0.0', applicationIcon: const Icon(Icons.health_and_safety, size: 40, color: Color(0xFF1B2473)), children: [const SizedBox(height: 10), const Text('Ứng dụng đặt lịch khám và quản lý sức khỏe dành cho bệnh nhân.')]);
+    showAboutDialog(
+      context: context,
+      applicationName: 'Medicare - Patient',
+      applicationVersion: '1.0.0',
+      applicationIcon: const Icon(Icons.health_and_safety, size: 40, color: Color(0xFF1B2473)),
+      applicationLegalese: '© 2026 Medicare Inc.',
+      children: [
+        const SizedBox(height: 9),
+        const Text('Ứng dụng quản lý lịch khám và hồ sơ bệnh nhân dành cho bệnh nhân.'),
+      ],
+    );
   }
 }
 

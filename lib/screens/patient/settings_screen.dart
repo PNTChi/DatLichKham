@@ -14,41 +14,41 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  // --- STATE LOCALS ---
   bool notifyAppointment = true;
   bool notifyPill = true;
 
-  // --- CÁC HÀM XỬ LÝ SỰ KIỆN MỚI ---
-
-  // Hàm Chia sẻ ứng dụng
-  void _handleShareApp() async {
-    await Share.share(
-      'Theo dõi và bảo vệ sức khỏe của bạn cùng Medicare. Tải ứng dụng ngay tại: https://medicare.vn/download',
-    );
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
   }
 
-  // Hàm Đánh giá ứng dụng
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      notifyAppointment = prefs.getBool('notifyAppointment') ?? true;
+      notifyPill = prefs.getBool('notifyPill') ?? true;
+    });
+  }
+
+  void _handleShareApp() async {
+    await Share.share('Theo dõi và bảo vệ sức khỏe của bạn cùng Medicare. Tải ứng dụng ngay tại: https://medicare.vn/download');
+  }
+
   Future<void> _handleRateApp() async {
-    // Thay đổi link này thành link CH Play hoặc App Store thực tế của bạn sau này
     final Uri url = Uri.parse('https://play.google.com/store/apps');
     try {
       if (await canLaunchUrl(url)) {
         await launchUrl(url, mode: LaunchMode.externalApplication);
       } else {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Không thể mở cửa hàng ứng dụng')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Không thể mở cửa hàng ứng dụng')));
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Lỗi: $e')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
     }
   }
-
-  // --- CÁC HÀM HIỂN THỊ MODAL & HỘP THOẠI (Giữ nguyên) ---
 
   void _showNotificationSettingsModal(BuildContext context) {
     showModalBottomSheet(
@@ -97,63 +97,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showSupportDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Trung tâm hỗ trợ', style: TextStyle(fontWeight: FontWeight.bold)),
-        content: const Text('Hotline: 1900 1234\nEmail: support@medicare.vn\n\nChúng tôi luôn sẵn sàng hỗ trợ bạn 24/7.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Đóng')),
-        ],
-      ),
-    );
-  }
-
-  void _showInfoDialog(BuildContext context, String title, String content) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        content: SingleChildScrollView(child: Text(content)),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Đóng')),
-        ],
-      ),
-    );
-  }
-
-  void _handleLogout(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Đăng xuất', style: TextStyle(fontWeight: FontWeight.bold)),
-        content: const Text('Bạn có chắc chắn muốn đăng xuất khỏi ứng dụng?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Hủy', style: TextStyle(color: Colors.grey)),
-          ),
-          TextButton(
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              if (!context.mounted) return;
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
-                    (Route<dynamic> route) => false,
-              );
-            },
-            child: const Text('Đăng xuất', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _showChangePasswordDialog(BuildContext context) {
     final currentPasswordCtrl = TextEditingController();
     final newPasswordCtrl = TextEditingController();
@@ -174,51 +117,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (errorMessage != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 15),
-                      child: Text(errorMessage!, style: const TextStyle(color: Colors.red, fontSize: 13)),
-                    ),
-                  TextField(
-                    controller: currentPasswordCtrl,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: 'Mật khẩu hiện tại',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                    ),
-                  ),
+                    Padding(padding: const EdgeInsets.only(bottom: 15), child: Text(errorMessage!, style: const TextStyle(color: Colors.red, fontSize: 13))),
+                  TextField(controller: currentPasswordCtrl, obscureText: true, decoration: InputDecoration(labelText: 'Mật khẩu hiện tại', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14))),
                   const SizedBox(height: 12),
-                  TextField(
-                    controller: newPasswordCtrl,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: 'Mật khẩu mới',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                    ),
-                  ),
+                  TextField(controller: newPasswordCtrl, obscureText: true, decoration: InputDecoration(labelText: 'Mật khẩu mới', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14))),
                   const SizedBox(height: 12),
-                  TextField(
-                    controller: confirmPasswordCtrl,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: 'Xác nhận mật khẩu mới',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                    ),
-                  ),
+                  TextField(controller: confirmPasswordCtrl, obscureText: true, decoration: InputDecoration(labelText: 'Xác nhận mật khẩu mới', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14))),
                 ],
               ),
             ),
             actions: [
-              TextButton(
-                onPressed: isLoading ? null : () => Navigator.pop(ctx),
-                child: const Text('Hủy', style: TextStyle(color: Colors.grey)),
-              ),
+              TextButton(onPressed: isLoading ? null : () => Navigator.pop(ctx), child: const Text('Hủy', style: TextStyle(color: Colors.grey))),
               ElevatedButton(
-                onPressed: isLoading
-                    ? null
-                    : () async {
+                onPressed: isLoading ? null : () async {
                   final currentPwd = currentPasswordCtrl.text.trim();
                   final newPwd = newPasswordCtrl.text.trim();
                   final confirmPwd = confirmPasswordCtrl.text.trim();
@@ -236,10 +147,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     return;
                   }
 
-                  setState(() {
-                    isLoading = true;
-                    errorMessage = null;
-                  });
+                  setState(() { isLoading = true; errorMessage = null; });
 
                   try {
                     final user = FirebaseAuth.instance.currentUser;
@@ -250,9 +158,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                       if (!context.mounted) return;
                       Navigator.pop(ctx);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Đổi mật khẩu thành công!'), backgroundColor: Colors.green),
-                      );
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đổi mật khẩu thành công!'), backgroundColor: Colors.green));
                     }
                   } on FirebaseAuthException catch (e) {
                     setState(() {
@@ -264,19 +170,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       }
                     });
                   } catch (e) {
-                    setState(() {
-                      isLoading = false;
-                      errorMessage = 'Đã xảy ra lỗi. Vui lòng thử lại.';
-                    });
+                    setState(() { isLoading = false; errorMessage = 'Đã xảy ra lỗi. Vui lòng thử lại.'; });
                   }
                 },
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.navy,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
-                ),
-                child: isLoading
-                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : const Text('Xác nhận', style: TextStyle(color: Colors.white)),
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.navy, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                child: isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Text('Xác nhận', style: TextStyle(color: Colors.white)),
               ),
             ],
           );
@@ -285,89 +183,66 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  void _handleLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Đăng xuất', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text('Bạn có chắc chắn muốn đăng xuất khỏi ứng dụng?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Hủy', style: TextStyle(color: Colors.grey))),
+          TextButton(
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              if (!context.mounted) return;
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginScreen()), (Route<dynamic> route) => false);
+            },
+            child: const Text('Đăng xuất', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSupportDialog(BuildContext context) {
+    showDialog(context: context, builder: (ctx) => AlertDialog(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), title: const Text('Trung tâm hỗ trợ', style: TextStyle(fontWeight: FontWeight.bold)), content: const Text('Hotline: 1900 1234\nEmail: support@medicare.vn\n\nChúng tôi luôn sẵn sàng hỗ trợ bạn 24/7.'), actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Đóng'))]));
+  }
+
+  void _showInfoDialog(BuildContext context, String title, String content) {
+    showDialog(context: context, builder: (ctx) => AlertDialog(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)), content: SingleChildScrollView(child: Text(content)), actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Đóng'))]));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.navy, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Cài đặt',
-          style: TextStyle(color: AppColors.navy, fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
+        backgroundColor: Colors.white, elevation: 0,
+        leading: IconButton(icon: const Icon(Icons.arrow_back_ios, color: AppColors.navy, size: 20), onPressed: () => Navigator.pop(context)),
+        title: const Text('Cài đặt', style: TextStyle(color: AppColors.navy, fontSize: 18, fontWeight: FontWeight.bold)), centerTitle: true,
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
           _buildSectionHeader('Tài khoản & Ứng dụng'),
-          _buildSettingItem(
-            Icons.notifications_active_outlined,
-            'Cài đặt thông báo',
-            'Tùy chỉnh thông báo đẩy',
-            onTap: () => _showNotificationSettingsModal(context),
-          ),
-          _buildSettingItem(
-            Icons.lock_outline,
-            'Đổi mật khẩu',
-            'Bảo mật tài khoản của bạn',
-            onTap: () => _showChangePasswordDialog(context),
-          ),
-
+          _buildSettingItem(Icons.notifications_active_outlined, 'Cài đặt thông báo', 'Tùy chỉnh thông báo đẩy', onTap: () => _showNotificationSettingsModal(context)),
+          _buildSettingItem(Icons.lock_outline, 'Đổi mật khẩu', 'Bảo mật tài khoản của bạn', onTap: () => _showChangePasswordDialog(context)),
           const SizedBox(height: 25),
           _buildSectionHeader('Cộng đồng & Hỗ trợ'),
-          _buildSettingItem(
-            Icons.share_outlined,
-            'Chia sẻ ứng dụng',
-            'Giới thiệu Medicare cho người thân',
-            onTap: _handleShareApp, // Gọi hàm chia sẻ
-          ),
-          _buildSettingItem(
-            Icons.star_outline,
-            'Đánh giá ứng dụng',
-            'Để lại nhận xét trên App Store/Google Play',
-            onTap: _handleRateApp, // Gọi hàm mở Cửa hàng
-          ),
-          _buildSettingItem(
-            Icons.help_outline,
-            'Trung tâm hỗ trợ',
-            'Liên hệ bộ phận CSKH 24/7',
-            onTap: () => _showSupportDialog(context),
-          ),
-
+          _buildSettingItem(Icons.share_outlined, 'Chia sẻ ứng dụng', 'Giới thiệu Medicare cho người thân', onTap: _handleShareApp),
+          _buildSettingItem(Icons.star_outline, 'Đánh giá ứng dụng', 'Để lại nhận xét trên App Store/Google Play', onTap: _handleRateApp),
+          _buildSettingItem(Icons.help_outline, 'Trung tâm hỗ trợ', 'Liên hệ bộ phận CSKH 24/7', onTap: () => _showSupportDialog(context)),
           const SizedBox(height: 25),
           _buildSectionHeader('Chính sách'),
-          _buildSettingItem(
-            Icons.account_balance_outlined,
-            'Điều khoản & Điều kiện',
-            'Quy định sử dụng nền tảng',
-            onTap: () => _showInfoDialog(context, 'Điều khoản & Điều kiện', '1. Người dùng cam kết cung cấp thông tin y tế chính xác.\n2. Không sử dụng ứng dụng vào mục đích vi phạm pháp luật.\n3. Các điều khoản dịch vụ khác đang được cập nhật...'),
-          ),
-          _buildSettingItem(
-            Icons.verified_user_outlined,
-            'Chính sách bảo mật',
-            'Cách chúng tôi bảo vệ dữ liệu của bạn',
-            onTap: () => _showInfoDialog(context, 'Chính sách bảo mật', 'Dữ liệu y tế và cá nhân của bạn được mã hóa an toàn tuyệt đối. Chúng tôi cam kết không chia sẻ thông tin của bạn cho bất kỳ bên thứ ba nào khi chưa có sự đồng ý.'),
-          ),
-
+          _buildSettingItem(Icons.account_balance_outlined, 'Điều khoản & Điều kiện', 'Quy định sử dụng nền tảng', onTap: () => _showInfoDialog(context, 'Điều khoản & Điều kiện', '1. Người dùng cam kết cung cấp thông tin y tế chính xác.\n2. Không sử dụng ứng dụng vào mục đích vi phạm pháp luật.\n3. Các điều khoản dịch vụ khác đang được cập nhật...')),
+          _buildSettingItem(Icons.verified_user_outlined, 'Chính sách bảo mật', 'Cách chúng tôi bảo vệ dữ liệu của bạn', onTap: () => _showInfoDialog(context, 'Chính sách bảo mật', 'Dữ liệu y tế và cá nhân của bạn được mã hóa an toàn tuyệt đối. Chúng tôi cam kết không chia sẻ thông tin của bạn cho bất kỳ bên thứ ba nào khi chưa có sự đồng ý.')),
           const SizedBox(height: 40),
-
-          // Nút Đăng xuất
           ElevatedButton.icon(
             onPressed: () => _handleLogout(context),
             icon: const Icon(Icons.logout, color: Colors.redAccent),
             label: const Text('Đăng xuất', style: TextStyle(color: Colors.redAccent, fontSize: 16, fontWeight: FontWeight.bold)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red.withValues(alpha: 0.1),
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red.withValues(alpha: 0.1), elevation: 0, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
           ),
           const SizedBox(height: 20),
         ],
@@ -376,46 +251,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 15, left: 5),
-      child: Text(
-        title.toUpperCase(),
-        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2),
-      ),
-    );
+    return Padding(padding: const EdgeInsets.only(bottom: 15, left: 5), child: Text(title.toUpperCase(), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2)));
   }
 
-  Widget _buildSettingItem(
-      IconData icon,
-      String title,
-      String subtitle, {
-        bool isToggle = false,
-        VoidCallback? onTap,
-      }) {
+  Widget _buildSettingItem(IconData icon, String title, String subtitle, {VoidCallback? onTap}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
-      ),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.withValues(alpha: 0.2))),
       child: ListTile(
-        onTap: isToggle ? null : onTap,
+        onTap: onTap,
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        leading: Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(color: AppColors.surfaceMuted, borderRadius: BorderRadius.circular(10)),
-          child: Icon(icon, color: AppColors.navy),
-        ),
+        leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: AppColors.surfaceMuted, borderRadius: BorderRadius.circular(10)), child: Icon(icon, color: AppColors.navy)),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.navy)),
         subtitle: Text(subtitle, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-        trailing: isToggle
-            ? Switch(
-          value: notifyAppointment,
-          activeThumbColor: AppColors.accent,
-          onChanged: (val) {},
-        )
-            : const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
       ),
     );
   }

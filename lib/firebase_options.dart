@@ -57,22 +57,22 @@ class DefaultFirebaseOptions {
     projectId: 'dat-lich-kham-app',
     storageBucket: 'dat-lich-kham-app.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBC7lFsI3wEDuVPZ9Td35OUSxB2RvCYOM8',
     appId: '1:162088505695:ios:7df608e27bdb9d1802e6ea',
     messagingSenderId: '162088505695',
     projectId: 'dat-lich-kham-app',
     storageBucket: 'dat-lich-kham-app.firebasestorage.app',
+    iosClientId: '162088505695-sljjsodk0h71h37ker0dr3ttq0p75c0u.apps.googleusercontent.com',
     iosBundleId: 'com.example.datLichKhamApp',
   );
-
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyBC7lFsI3wEDuVPZ9Td35OUSxB2RvCYOM8',
     appId: '1:162088505695:ios:7df608e27bdb9d1802e6ea',
     messagingSenderId: '162088505695',
     projectId: 'dat-lich-kham-app',
     storageBucket: 'dat-lich-kham-app.firebasestorage.app',
+    iosClientId: '162088505695-sljjsodk0h71h37ker0dr3ttq0p75c0u.apps.googleusercontent.com',
     iosBundleId: 'com.example.datLichKhamApp',
   );
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:dat_lich_kham_app/theme/app_colors.dart';
 import 'package:dat_lich_kham_app/screens/patient/pharmacy_order_success_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 /// Chọn phương thức thanh toán.
 class PaymentCheckoutScreen extends StatefulWidget {
@@ -132,7 +134,23 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
             width: double.infinity,
             height: 52,
             child: ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
+                // 1. Lưu đơn hàng vào collection 'orders'
+                try {
+                  await FirebaseFirestore.instance.collection('orders').add({
+                    'patientId': FirebaseAuth.instance.currentUser?.uid,
+                    'itemName': widget.itemName,
+                    'quantity': widget.quantity,
+                    'totalAmount': widget.amountVnd,
+                    'paymentMethod': _method == 0 ? 'Thẻ ngân hàng' : 'COD',
+                    'createdAt': FieldValue.serverTimestamp(),
+                    'status': 'Đang xử lý',
+                  });
+                } catch (e) {
+                  debugPrint("Lỗi lưu đơn hàng: $e");
+                }
+
+                // 2. Chuyển hướng như cũ
                 if (widget.title == 'Thanh toán phí khám') {
                   Navigator.pop(context, true);
                 } else {
@@ -144,7 +162,7 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
                         itemName: widget.itemName,
                         quantity: widget.quantity,
                         headline: widget.successHeadline ?? 'Đặt hàng thành công!',
-                        footerHint: widget.successFooterHint ?? 'Đơn hàng đang được xử lý. Bạn sẽ nhận thông báo khi giao hàng.',
+                        footerHint: widget.successFooterHint ?? 'Đơn hàng đang được xử lý.',
                       ),
                     ),
                   );
