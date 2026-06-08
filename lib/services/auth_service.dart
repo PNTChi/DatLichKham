@@ -60,36 +60,51 @@ class AuthService {
     await _auth.signOut();
   }
 
-  // ĐĂNG NHẬP BẰNG GOOGLE
+  // Hàm gửi email khôi phục mật khẩu
+  Future<String?> resetPassword(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      return null;
+    } on FirebaseAuthException catch (e) {
+      return e.message;
+    }
+  }
+
+  // Hàm đổi mật khẩu (khi đang đăng nhập)
+  Future<String?> changePassword(String newPassword) async {
+    try {
+      await _auth.currentUser?.updatePassword(newPassword);
+      return null;
+    } on FirebaseAuthException catch (e) {
+      return e.message;
+    }
+  }
+
   Future<String?> signInWithGoogle() async {
     try {
-      // 1. Khởi tạo GoogleSignIn (Không cần truyền clientId nếu đã có file google-services.json)
-      final GoogleSignIn googleSignIn = GoogleSignIn();
+      // Đã sửa lại đúng tên biến googleUser (không có chữ c)
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
-      // Mở bảng chọn tài khoản
-      final GoogleSignInAccount? gUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        return 'Đã hủy đăng nhập';
+      }
 
-      // Kiểm tra nếu người dùng bấm Back (đóng bảng chọn)
-      if (gUser == null) return 'Đã hủy đăng nhập';
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
-      // 2. Lấy thông tin xác thực (Cần gUser đã được kiểm tra null)
-      final GoogleSignInAuthentication gAuth = await gUser.authentication;
-      final OAuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: gAuth.accessToken,
-        idToken: gAuth.idToken,
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
       );
 
-      // 3. Đăng nhập vào Firebase
       UserCredential userCred = await _auth.signInWithCredential(credential);
 
-      // 4. Kiểm tra xem người dùng đã có hồ sơ trong Firestore chưa
-      final doc = await _firestore.collection('users').doc(userCred.user!.uid).get();
+      final docRef = _firestore.collection('users').doc(userCred.user!.uid);
+      final docSnap = await docRef.get();
 
-      // NẾU LÀ LẦN ĐẦU ĐĂNG NHẬP -> TẠO HỒ SƠ MỚI
-      if (!doc.exists) {
-        await _firestore.collection('users').doc(userCred.user!.uid).set({
+      if (!docSnap.exists) {
+        await docRef.set({
           'uid': userCred.user!.uid,
-          'fullName': userCred.user!.displayName ?? 'Người dùng',
+          'fullName': userCred.user!.displayName ?? 'Người dùng Google',
           'email': userCred.user!.email,
           'avatarUrl': userCred.user!.photoURL ?? '',
           'role': 'patient',
@@ -109,31 +124,12 @@ class AuthService {
           'familyHistory': 'Chưa ghi nhận',
         });
       }
-      return null; // Đăng nhập thành công
+
+      return null;
     } on FirebaseAuthException catch (e) {
       return e.message;
     } catch (e) {
       return e.toString();
-    }
-  }
-
-  // Hàm gửi email khôi phục mật khẩu
-  Future<String?> resetPassword(String email) async {
-    try {
-      await _auth.sendPasswordResetEmail(email: email);
-      return null;
-    } on FirebaseAuthException catch (e) {
-      return e.message;
-    }
-  }
-
-  // Hàm đổi mật khẩu (khi đang đăng nhập)
-  Future<String?> changePassword(String newPassword) async {
-    try {
-      await _auth.currentUser?.updatePassword(newPassword);
-      return null;
-    } on FirebaseAuthException catch (e) {
-      return e.message;
     }
   }
 }

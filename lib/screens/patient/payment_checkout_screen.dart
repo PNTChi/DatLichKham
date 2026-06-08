@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:dat_lich_kham_app/theme/app_colors.dart';
-import 'package:dat_lich_kham_app/screens/patient/pharmacy_order_success_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'order_invoice_screen.dart';
 
 /// Chọn phương thức thanh toán.
 class PaymentCheckoutScreen extends StatefulWidget {
@@ -135,52 +135,64 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
             height: 52,
             child: ElevatedButton(
               onPressed: () async {
-                // 1. Lưu đơn hàng vào collection 'orders'
+                // 1. Tạo một ID hóa đơn ngẫu nhiên ngắn gọn
+                String orderId = "MC-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}";
+                DateTime now = DateTime.now();
+
+                // 2. Tự động nhận diện loại dịch vụ dựa vào tiêu đề màn hình
+                String orderType = 'Mua thuốc'; // Mặc định
+                String titleLower = widget.title.toLowerCase();
+
+                if (titleLower.contains('khám')) {
+                  orderType = 'Đặt lịch khám';
+                } else if (titleLower.contains('xét nghiệm')) {
+                  orderType = 'Đặt xét nghiệm';
+                }
+
+                // 3. Lưu thông tin giao dịch vào collection 'orders'
                 try {
                   await FirebaseFirestore.instance.collection('orders').add({
+                    'orderId': orderId,
                     'patientId': FirebaseAuth.instance.currentUser?.uid,
                     'itemName': widget.itemName,
                     'quantity': widget.quantity,
                     'totalAmount': widget.amountVnd,
                     'paymentMethod': _method == 0 ? 'Thẻ ngân hàng' : 'COD',
                     'createdAt': FieldValue.serverTimestamp(),
-                    'status': 'Đang xử lý',
+                    'status': 'Đã thanh toán',
+                    'type': orderType, // Sẽ tự lưu đúng là "Đặt xét nghiệm", "Đặt lịch khám" hay "Mua thuốc"
                   });
                 } catch (e) {
                   debugPrint("Lỗi lưu đơn hàng: $e");
                 }
 
-                // 2. Chuyển hướng như cũ
-                if (widget.title == 'Thanh toán phí khám') {
-                  Navigator.pop(context, true);
-                } else {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PharmacyOrderSuccessScreen(
-                        amountVnd: widget.amountVnd,
-                        itemName: widget.itemName,
-                        quantity: widget.quantity,
-                        headline: widget.successHeadline ?? 'Đặt hàng thành công!',
-                        footerHint: widget.successFooterHint ?? 'Đơn hàng đang được xử lý.',
-                      ),
+                if (!context.mounted) return;
+
+                // 4. Chuyển thẳng sang màn hình chi tiết hóa đơn
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => OrderInvoiceScreen(
+                      orderId: orderId,
+                      itemName: widget.itemName,
+                      quantity: widget.quantity,
+                      totalAmount: widget.amountVnd,
+                      paymentMethod: _method == 0 ? 'Thẻ ngân hàng' : 'COD',
+                      date: now,
                     ),
-                  );
-                }
+                  ),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.navy,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
+                minimumSize: const Size(double.infinity, 52),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               ),
               child: const Text(
                 'Xác nhận thanh toán',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
               ),
-            ),
+            )
           ),
         ],
       ),

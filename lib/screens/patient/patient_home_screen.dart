@@ -230,10 +230,13 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
             builder: (context, snapshot) {
               String name = "Đang tải...";
               String phone = "";
+              String avatarUrl = ""; // Thêm biến lấy link ảnh
+
               if (snapshot.hasData && snapshot.data!.exists) {
                 final data = snapshot.data!.data() as Map<String, dynamic>;
                 name = data['fullName'] ?? 'Người dùng';
                 phone = data['phoneNumber'] ?? '';
+                avatarUrl = data['avatarUrl'] ?? ''; // Gắn dữ liệu ảnh
               }
               return Container(
                 width: double.infinity,
@@ -241,7 +244,13 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                 decoration: const BoxDecoration(color: Color(0xFF1B2473), borderRadius: BorderRadius.only(bottomRight: Radius.circular(30))),
                 child: Row(
                   children: [
-                    const CircleAvatar(radius: 30, backgroundColor: Colors.white, child: Icon(Icons.person, size: 40, color: Colors.grey)),
+                    CircleAvatar(
+                      radius: 30,
+                      backgroundColor: const Color(0xFF1B2473),
+                      // Kiểm tra nếu có link thì load ảnh, không thì load icon mặc định
+                      backgroundImage: avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
+                      child: avatarUrl.isEmpty ? const Icon(Icons.person, size: 40, color: Colors.grey) : null,
+                    ),
                     const SizedBox(width: 15),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

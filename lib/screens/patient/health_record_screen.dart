@@ -167,6 +167,8 @@ class HealthRecordScreen extends StatelessWidget {
           final age = DateTime.now().year - (birthYear as int);
           final bloodType = data['bloodType'] ?? 'Chưa rõ';
 
+          final avatarUrl = data['avatarUrl'] ?? ''; // Thêm dòng lấy ảnh
+
           final height = data['height']?.toString() ?? '0';
           final weight = data['weight']?.toString() ?? '0';
 
@@ -217,7 +219,8 @@ class HealthRecordScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildProfileHeader(fullName, gender, age, birthYear.toString(), bloodType),
+                  // Truyền thêm avatarUrl vào hàm header
+                  _buildProfileHeader(fullName, gender, age, birthYear.toString(), bloodType, avatarUrl),
                   const SizedBox(height: 25),
 
                   const Text('Chỉ số cơ thể', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black87)),
@@ -261,7 +264,8 @@ class HealthRecordScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileHeader(String name, String gender, int age, String birthYear, String bloodType) {
+  // Đã thêm biến String avatarUrl vào đây
+  Widget _buildProfileHeader(String name, String gender, int age, String birthYear, String bloodType, String avatarUrl) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -282,15 +286,16 @@ class HealthRecordScreen extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(3),
+            padding: const EdgeInsets.all(0),
             decoration: const BoxDecoration(
-              color: Colors.white,
+              color: Colors.transparent,
               shape: BoxShape.circle,
             ),
-            child: const CircleAvatar(
+            child: CircleAvatar(
               radius: 35,
-              backgroundColor: Colors.grey,
-              child: Icon(Icons.person, size: 40, color: Colors.white),
+              backgroundColor: Colors.transparent,
+              backgroundImage: avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
+              child: avatarUrl.isEmpty ? const Icon(Icons.person, size: 40, color: Colors.white) : null,
             ),
           ),
           const SizedBox(width: 20),
