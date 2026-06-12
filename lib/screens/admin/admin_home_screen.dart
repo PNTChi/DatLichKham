@@ -46,7 +46,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     }
   }
 
-  // HÀM HIỂN THỊ FORM THÊM THUỐC (Giữ nguyên logic cũ của bạn)
+  // HÀM HIỂN THỊ FORM THÊM THUỐC
   void _showAddMedicineDialog(BuildContext context) {
     final nameCtrl = TextEditingController();
     final subCtrl = TextEditingController();
@@ -230,10 +230,11 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 _buildAdminCard(
                   icon: Icons.people,
                   title: 'Quản lý User',
-                  subtitle: 'Sắp ra mắt',
-                  color: Colors.grey,
+                  subtitle: 'Đổi quyền, Xóa',
+                  color: Colors.redAccent, // Đổi màu cho nổi bật hơn
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tính năng đang phát triển')));
+                    // ĐÃ CẬP NHẬT: Điều hướng tới màn hình Quản lý User
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminManageUsersScreen()));
                   },
                 ),
               ],
@@ -498,6 +499,151 @@ class _AdminEditScheduleScreenState extends State<AdminEditScheduleScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// 3. MÀN HÌNH QUẢN LÝ TẤT CẢ NGƯỜI DÙNG (TÍNH NĂNG ĐƯỢC THÊM MỚI)
+// ============================================================================
+class AdminManageUsersScreen extends StatefulWidget {
+  const AdminManageUsersScreen({super.key});
+
+  @override
+  State<AdminManageUsersScreen> createState() => _AdminManageUsersScreenState();
+}
+
+class _AdminManageUsersScreenState extends State<AdminManageUsersScreen> {
+  // Hàm Đổi Quyền User (Role)
+  Future<void> _changeRole(String uid, String newRole) async {
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(uid).update({'role': newRole});
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Đã cập nhật quyền thành: $newRole'), backgroundColor: Colors.green),
+      );
+    } catch (e) {
+      debugPrint('Lỗi đổi quyền: $e');
+    }
+  }
+
+  // Hàm Xóa Tài Khoản
+  Future<void> _deleteUser(String uid) async {
+    bool confirm = await showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Xác nhận xóa'),
+        content: const Text('Bạn có chắc chắn muốn xóa tài khoản này khỏi cơ sở dữ liệu?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Hủy')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Xóa', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    ) ?? false;
+
+    if (confirm) {
+      try {
+        await FirebaseFirestore.instance.collection('users').doc(uid).delete();
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Đã xóa tài khoản thành công!'), backgroundColor: Colors.orange),
+        );
+      } catch (e) {
+        debugPrint('Lỗi xóa tài khoản: $e');
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF7F8FC),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.navy),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text('Quản lý Người Dùng', style: TextStyle(color: AppColors.navy, fontWeight: FontWeight.bold, fontSize: 16)),
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('users').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator(color: AppColors.navy));
+          }
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text('Chưa có dữ liệu người dùng.'));
+          }
+
+          final users = snapshot.data!.docs;
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(20),
+            itemCount: users.length,
+            itemBuilder: (context, index) {
+              var data = users[index].data() as Map<String, dynamic>;
+              String uid = users[index].id;
+              String name = data['fullName'] ?? 'Không tên';
+              String email = data['email'] ?? 'Không có email';
+              String role = data['role'] ?? 'patient';
+              String avatar = data['avatarUrl'] ?? '';
+
+              // Ngăn Admin tự xóa hoặc đổi quyền của chính mình
+              bool isMe = uid == FirebaseAuth.instance.currentUser?.uid;
+
+              return Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                margin: const EdgeInsets.only(bottom: 12),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: AppColors.surfaceMuted,
+                    backgroundImage: avatar.isNotEmpty ? NetworkImage(avatar) : null,
+                    child: avatar.isEmpty ? const Icon(Icons.person, color: AppColors.navy) : null,
+                  ),
+                  title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(email, style: const TextStyle(fontSize: 12)),
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                            color: role == 'admin' ? Colors.red[100] : (role == 'doctor' ? Colors.green[100] : Colors.blue[100]),
+                            borderRadius: BorderRadius.circular(6)
+                        ),
+                        child: Text(
+                          role.toUpperCase(),
+                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: role == 'admin' ? Colors.red : (role == 'doctor' ? Colors.green[800] : Colors.blue[800])),
+                        ),
+                      ),
+                    ],
+                  ),
+                  trailing: isMe ? null : PopupMenuButton<String>(
+                    onSelected: (value) {
+                      if (value == 'make_doctor') _changeRole(uid, 'doctor');
+                      if (value == 'make_patient') _changeRole(uid, 'patient');
+                      if (value == 'delete') _deleteUser(uid);
+                    },
+                    itemBuilder: (context) => [
+                      if (role == 'patient') const PopupMenuItem(value: 'make_doctor', child: Text('Nâng cấp thành Bác sĩ')),
+                      if (role == 'doctor') const PopupMenuItem(value: 'make_patient', child: Text('Hủy quyền Bác sĩ')),
+                      const PopupMenuDivider(),
+                      const PopupMenuItem(value: 'delete', child: Text('Xóa tài khoản', style: TextStyle(color: Colors.red))),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }
